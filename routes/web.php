@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\RequisitoController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -13,18 +15,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    // rutas del admin aqui
-});
+    Route::prefix('postulante')->name('postulante.')->group(function () {
+        Route::get('/inscripcion', [InscripcionController::class, 'index'])->name('inscripcion.index');
+        Route::post('/inscripcion', [InscripcionController::class, 'store'])->name('inscripcion.store');
+        Route::get('/requisitos', [RequisitoController::class, 'index'])->name('requisitos.index');
+        Route::post('/requisitos', [RequisitoController::class, 'store'])->name('requisitos.store');
+    });
 
-Route::middleware(['auth', 'role:docente'])->prefix('docente')->name('docente.')->group(function () {
-    // rutas del docente aqui
-});
+    Route::prefix('admin')->name('admin.')->group(function () {
+        // rutas del admin aqui
+    });
 
-Route::middleware(['auth', 'role:postulante'])->prefix('postulante')->name('postulante.')->group(function () {
-    // rutas del postulante aqui
+    Route::prefix('docente')->name('docente.')->group(function () {
+        // rutas del docente aqui
+    });
 });
 
 require __DIR__.'/auth.php';

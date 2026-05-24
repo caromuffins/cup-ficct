@@ -10,21 +10,19 @@ class InscripcionController extends Controller
     public function index()
     {
         $user = auth()->user();
-
         $postulante = DB::table('postulantes')->where('user_id', $user->id)->first();
-
-        if (!$postulante) {
-            return redirect()->route('dashboard')
-                ->with('error', 'No tienes un perfil de postulante registrado.');
-        }
 
         $inscripcion = DB::table('inscripciones')
             ->where('postulante_id', $postulante->id)
-            ->latest('created_at')
+            ->orderBy('id', 'desc')
             ->first();
 
-        $carreras = DB::table('carreras')->where('activa', 1)->get();
-        $gestion  = DB::table('gestiones')->where('activa', 1)->first();
+        $carreras = DB::table('carreras')->where('activa', true)->get();
+        $gestion  = DB::table('gestiones')->where('activa', true)->first();
+
+        if ($inscripcion && !$gestion) {
+            $gestion = DB::table('gestiones')->where('id', $inscripcion->gestion_id)->first();
+        }
 
         return view('postulante.inscripcion', compact('inscripcion', 'carreras', 'gestion', 'postulante'));
     }

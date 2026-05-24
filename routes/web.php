@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\RequisitoController;
+use App\Http\Controllers\PagoController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -21,6 +22,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/inscripcion', [InscripcionController::class, 'store'])->name('inscripcion.store');
         Route::get('/requisitos', [RequisitoController::class, 'index'])->name('requisitos.index');
         Route::post('/requisitos', [RequisitoController::class, 'store'])->name('requisitos.store');
+        Route::get('/pago/crear',    [PagoController::class, 'crear'])->name('pago.crear');
+        Route::get('/pago/exitoso',  [PagoController::class, 'exitoso'])->name('pago.exitoso');
+        Route::get('/pago/cancelado',[PagoController::class, 'cancelado'])->name('pago.cancelado');
     });
 
     Route::prefix('admin')->name('admin.')->group(function () {

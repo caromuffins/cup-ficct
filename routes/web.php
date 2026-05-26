@@ -7,6 +7,7 @@ use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\RequisitoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\Admin\PostulanteController as AdminPostulanteController;
+use App\Http\Controllers\Admin\GrupoController as AdminGrupoController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -31,6 +32,9 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('postulantes', AdminPostulanteController::class);
         Route::post('requisitos/{id}/validar', [AdminPostulanteController::class, 'validarRequisito'])->name('requisitos.validar');
+        Route::get('grupos', [AdminGrupoController::class, 'index'])->name('grupos.index');
+        Route::post('grupos/generar', [AdminGrupoController::class, 'generar'])->name('grupos.generar');
+        Route::get('grupos/{id}', [AdminGrupoController::class, 'show'])->name('grupos.show');
     });
 
     Route::prefix('docente')->name('docente.')->group(function () {

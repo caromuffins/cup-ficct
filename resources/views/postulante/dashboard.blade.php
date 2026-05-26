@@ -20,7 +20,7 @@
                     <h4 class="font-bold text-gray-800 dark:text-gray-100">Mi Inscripcion</h4>
                     <p class="text-gray-500 text-sm mt-1">Ver estado de mi inscripcion y requisitos</p>
                 </a>
-                <a href="#" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
+                <a href="{{ route('postulante.grupo.index') }}" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
                     <h4 class="font-bold text-gray-800 dark:text-gray-100">Mi Grupo</h4>
                     <p class="text-gray-500 text-sm mt-1">Ver grupo y horario asignado</p>
                 </a>

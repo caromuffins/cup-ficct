@@ -8,6 +8,7 @@ use App\Http\Controllers\RequisitoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\Admin\PostulanteController as AdminPostulanteController;
 use App\Http\Controllers\Admin\GrupoController as AdminGrupoController;
+use App\Http\Controllers\Postulante\GrupoController as PostulanteGrupoController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -27,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pago/crear',    [PagoController::class, 'crear'])->name('pago.crear');
         Route::get('/pago/exitoso',  [PagoController::class, 'exitoso'])->name('pago.exitoso');
         Route::get('/pago/cancelado',[PagoController::class, 'cancelado'])->name('pago.cancelado');
+        Route::get('/grupo', [PostulanteGrupoController::class, 'index'])->name('grupo.index');
     });
 
     Route::prefix('admin')->name('admin.')->group(function () {

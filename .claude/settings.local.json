@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir -p \"c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\resources\\\\views\\\\admin\\\\postulantes\")"
+      "Bash(mkdir -p \"c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\resources\\\\views\\\\admin\\\\postulantes\")",
+      "Bash(powershell -Command \"Get-Content 'c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\storage\\\\logs\\\\laravel.log' -Tail 30\")",
+      "Bash(powershell -Command \"Get-Content 'c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\storage\\\\logs\\\\laravel.log' | Select-String 'local\\\\.\\(ERROR|WARNING\\)' | Select-Object -Last 5\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\USUARIO\\cup-ficct\\resources\\views\\admin"

@@ -16,6 +16,46 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <!-- CI -->
+        <div class="mt-4">
+            <x-input-label for="ci" value="Carnet de Identidad" />
+            <x-text-input id="ci" class="block mt-1 w-full" type="text"
+                name="ci" :value="old('ci')" required autofocus />
+            <x-input-error :messages="$errors->get('ci')" class="mt-2" />
+        </div>
+
+        <!-- Fecha de nacimiento -->
+        <div class="mt-4">
+            <x-input-label for="fecha_nacimiento" value="Fecha de Nacimiento" />
+            <x-text-input id="fecha_nacimiento" class="block mt-1 w-full" type="date"
+                name="fecha_nacimiento" :value="old('fecha_nacimiento')" required />
+            <x-input-error :messages="$errors->get('fecha_nacimiento')" class="mt-2" />
+        </div>
+
+        <!-- Telefono -->
+        <div class="mt-4">
+            <x-input-label for="telefono" value="Telefono" />
+            <x-text-input id="telefono" class="block mt-1 w-full" type="text"
+                name="telefono" :value="old('telefono')" required />
+            <x-input-error :messages="$errors->get('telefono')" class="mt-2" />
+        </div>
+
+        <!-- Colegio -->
+        <div class="mt-4">
+            <x-input-label for="colegio" value="Colegio de Procedencia" />
+            <x-text-input id="colegio" class="block mt-1 w-full" type="text"
+                name="colegio" :value="old('colegio')" required />
+            <x-input-error :messages="$errors->get('colegio')" class="mt-2" />
+        </div>
+
+        <!-- Ciudad -->
+        <div class="mt-4">
+            <x-input-label for="ciudad" value="Ciudad" />
+            <x-text-input id="ciudad" class="block mt-1 w-full" type="text"
+                name="ciudad" :value="old('ciudad')" required />
+            <x-input-error :messages="$errors->get('ciudad')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />

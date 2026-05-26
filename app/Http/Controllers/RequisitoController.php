@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class RequisitoController extends Controller
 {
     public function index()
     {
-        $user       = auth()->user();
+        $user = auth()->user();
         $postulante = DB::table('postulantes')->where('user_id', $user->id)->first();
 
         $inscripcion = DB::table('inscripciones')
@@ -68,14 +69,14 @@ class RequisitoController extends Controller
                 ]);
         } else {
             DB::table('requisito_postulante')->insert([
-                'postulante_id' => $postulante->id,
-                'requisito_id'  => $request->requisito_id,
+                'postulante_id'  => $postulante->id,
+                'requisito_id'   => $request->requisito_id,
                 'inscripcion_id' => $inscripcion->id,
-                'archivo_path'  => $path,
-                'estado'        => 'pendiente',
-                'fecha_entrega' => now(),
-                'created_at'    => now(),
-                'updated_at'    => now(),
+                'archivo_path'   => $path,
+                'estado'         => 'pendiente',
+                'fecha_entrega'  => now(),
+                'created_at'     => now(),
+                'updated_at'     => now(),
             ]);
         }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\RequisitoController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\Admin\PostulanteController as AdminPostulanteController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -28,7 +29,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('admin')->name('admin.')->group(function () {
-        // rutas del admin aqui
+        Route::resource('postulantes', AdminPostulanteController::class);
+        Route::post('requisitos/{id}/validar', [AdminPostulanteController::class, 'validarRequisito'])->name('requisitos.validar');
     });
 
     Route::prefix('docente')->name('docente.')->group(function () {

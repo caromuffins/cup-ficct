@@ -38,7 +38,7 @@
 
             <!-- Menu de acciones -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <a href="#" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
+                <a href="{{ route('admin.postulantes.index') }}" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
                     <h4 class="font-bold text-gray-800 dark:text-gray-100">Gestionar Inscripciones</h4>
                     <p class="text-gray-500 text-sm mt-1">Ver y validar inscripciones de postulantes</p>
                 </a>

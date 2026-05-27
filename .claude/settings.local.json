@@ -3,7 +3,9 @@
     "allow": [
       "Bash(mkdir -p \"c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\resources\\\\views\\\\admin\\\\postulantes\")",
       "Bash(powershell -Command \"Get-Content 'c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\storage\\\\logs\\\\laravel.log' -Tail 30\")",
-      "Bash(powershell -Command \"Get-Content 'c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\storage\\\\logs\\\\laravel.log' | Select-String 'local\\\\.\\(ERROR|WARNING\\)' | Select-Object -Last 5\")"
+      "Bash(powershell -Command \"Get-Content 'c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\storage\\\\logs\\\\laravel.log' | Select-String 'local\\\\.\\(ERROR|WARNING\\)' | Select-Object -Last 5\")",
+      "Bash(php artisan *)",
+      "Bash(powershell -Command \"Get-Content 'c:\\\\Users\\\\USUARIO\\\\cup-ficct\\\\storage\\\\logs\\\\laravel.log' | Select-String '\\\\] local\\\\.' | Select-Object -Last 8\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\USUARIO\\cup-ficct\\resources\\views\\admin"

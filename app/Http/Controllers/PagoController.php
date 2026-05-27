@@ -4,27 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Stripe\Stripe;
+use Stripe\Checkout\Session as StripeSession;
 
 class PagoController extends Controller
 {
-    private function getAccessToken()
-    {
-        $response = Http::withoutVerifying()
-            ->withBasicAuth(
-                env('PAYPAL_CLIENT_ID'),
-                env('PAYPAL_CLIENT_SECRET')
-            )->asForm()->post('https://api-m.sandbox.paypal.com/v1/oauth2/token', [
-                'grant_type' => 'client_credentials'
-            ]);
-
-        return $response->json()['access_token'];
-    }
-
     public function crear(Request $request)
     {
-        $user       = auth()->user();
-        $postulante = DB::table('postulantes')->where('user_id', $user->id)->first();
+        $user        = auth()->user();
+        $postulante  = DB::table('postulantes')->where('user_id', $user->id)->first();
+
+        if (!$postulante) {
+            return redirect()->route('postulante.inscripcion.index')
+                ->with('error', 'No tienes un perfil de postulante.');
+        }
+
         $inscripcion = DB::table('inscripciones')
             ->where('postulante_id', $postulante->id)
             ->orderBy('id', 'desc')
@@ -41,64 +35,64 @@ class PagoController extends Controller
         }
 
         $gestion = DB::table('gestiones')->where('id', $inscripcion->gestion_id)->first();
-        $monto   = number_format($gestion->monto_inscripcion, 2, '.', '');
+        $monto   = (int) round($gestion->monto_inscripcion * 100); // Stripe usa centavos
 
-        $accessToken = $this->getAccessToken();
+        Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        $response = Http::withoutVerifying()
-            ->withToken($accessToken)
-            ->post('https://api-m.sandbox.paypal.com/v2/checkout/orders', [
-                'intent' => 'CAPTURE',
-                'purchase_units' => [[
-                    'amount' => [
-                        'currency_code' => 'USD',
-                        'value'         => $monto,
+        $session = StripeSession::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency'     => 'usd',
+                    'unit_amount'  => $monto,
+                    'product_data' => [
+                        'name'        => 'Inscripcion CUP FICCT UAGRM',
+                        'description' => "Gestion {$gestion->periodo} {$gestion->anio}",
                     ],
-                    'description' => 'Inscripcion CUP FICCT UAGRM',
-                ]],
-                'application_context' => [
-                    'return_url' => route('postulante.pago.exitoso'),
-                    'cancel_url' => route('postulante.pago.cancelado'),
                 ],
-            ]);
-
-        $order = $response->json();
-
-        if (!isset($order['id'])) {
-            return back()->with('error', 'Error al crear el pago. Intenta de nuevo.');
-        }
+                'quantity' => 1,
+            ]],
+            'mode'        => 'payment',
+            'success_url' => route('postulante.pago.exitoso') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'  => route('postulante.pago.cancelado'),
+        ]);
 
         DB::table('pagos')->insert([
             'inscripcion_id' => $inscripcion->id,
-            'monto'          => $monto,
+            'monto'          => $gestion->monto_inscripcion,
             'moneda'         => 'USD',
-            'metodo'         => 'paypal',
+            'metodo'         => 'stripe',
             'estado'         => 'pendiente',
-            'transaccion_id' => $order['id'],
+            'transaccion_id' => $session->id,
             'created_at'     => now(),
             'updated_at'     => now(),
         ]);
 
-        $approvalUrl = collect($order['links'])->firstWhere('rel', 'approve')['href'];
-
-        return redirect($approvalUrl);
+        return redirect($session->url);
     }
 
     public function exitoso(Request $request)
     {
-        $token       = $request->get('token');
-        $accessToken = $this->getAccessToken();
+        $sessionId = $request->get('session_id');
 
-        $response = Http::withoutVerifying()
-            ->withToken($accessToken)
-            ->post("https://api-m.sandbox.paypal.com/v2/checkout/orders/{$token}/capture");
+        if (!$sessionId) {
+            return redirect()->route('postulante.inscripcion.index')
+                ->with('error', 'Sesion de pago no encontrada.');
+        }
 
-        $order = $response->json();
+        Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        if ($order['status'] === 'COMPLETED') {
-            $pago = DB::table('pagos')->where('transaccion_id', $token)->first();
+        $session = StripeSession::retrieve($sessionId);
 
-            DB::table('pagos')->where('transaccion_id', $token)->update([
+        if ($session->payment_status === 'paid') {
+            $pago = DB::table('pagos')->where('transaccion_id', $sessionId)->first();
+
+            if (!$pago) {
+                return redirect()->route('postulante.inscripcion.index')
+                    ->with('error', 'No se encontro el registro de pago.');
+            }
+
+            DB::table('pagos')->where('transaccion_id', $sessionId)->update([
                 'estado'     => 'completado',
                 'fecha_pago' => now(),
                 'updated_at' => now(),

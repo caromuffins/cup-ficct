@@ -16,23 +16,23 @@
                 </div>
             </div>
 
-            <!-- Tarjetas de estadisticas -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 text-center">
-                    <p class="text-3xl font-bold text-blue-600">{{ $stats['postulantes'] }}</p>
-                    <p class="text-gray-500 text-sm mt-1">Postulantes</p>
+            <!-- Cards de estadisticas -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 text-center">
+                    <p class="text-4xl font-bold text-blue-600">{{ $stats['total_postulantes'] }}</p>
+                    <p class="text-gray-500 text-sm mt-1">Total Postulantes</p>
                 </div>
-                <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 text-center">
-                    <p class="text-3xl font-bold text-green-600">{{ $stats['grupos'] }}</p>
-                    <p class="text-gray-500 text-sm mt-1">Grupos</p>
+                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 text-center">
+                    <p class="text-4xl font-bold text-green-600">{{ $stats['total_habilitados'] }}</p>
+                    <p class="text-gray-500 text-sm mt-1">Habilitados</p>
                 </div>
-                <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 text-center">
-                    <p class="text-3xl font-bold text-yellow-600">{{ $stats['docentes'] }}</p>
-                    <p class="text-gray-500 text-sm mt-1">Docentes</p>
+                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 text-center">
+                    <p class="text-4xl font-bold text-yellow-600">{{ $stats['requisitos_pendientes'] }}</p>
+                    <p class="text-gray-500 text-sm mt-1">Requisitos Pendientes</p>
                 </div>
-                <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 text-center">
-                    <p class="text-3xl font-bold text-purple-600">{{ $stats['admitidos'] }}</p>
-                    <p class="text-gray-500 text-sm mt-1">Admitidos</p>
+                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 text-center">
+                    <p class="text-4xl font-bold text-purple-600">{{ $stats['total_grupos'] }}</p>
+                    <p class="text-gray-500 text-sm mt-1">Grupos Creados</p>
                 </div>
             </div>
 

@@ -41,6 +41,19 @@
                                 class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
                         </div>
                         <div>
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Sexo</label>
+                            <select name="sexo" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
+                                <option value="">Seleccionar...</option>
+                                <option value="M" {{ $postulante->sexo === 'M' ? 'selected' : '' }}>Masculino</option>
+                                <option value="F" {{ $postulante->sexo === 'F' ? 'selected' : '' }}>Femenino</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Direccion</label>
+                            <input type="text" name="direccion" value="{{ old('direccion', $postulante->direccion) }}"
+                                class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
+                        </div>
+                        <div>
                             <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Estado</label>
                             <select name="estado" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
                                 @foreach(['pendiente','habilitado','inscrito','admitido','rechazado'] as $estado)

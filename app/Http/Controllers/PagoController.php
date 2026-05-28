@@ -105,10 +105,43 @@ class PagoController extends Controller
 
             $inscripcion = DB::table('inscripciones')->where('id', $pago->inscripcion_id)->first();
 
+            $postulante = DB::table('postulantes')->where('id', $inscripcion->postulante_id)->first();
+
             DB::table('postulantes')->where('id', $inscripcion->postulante_id)->update([
                 'estado'     => 'habilitado',
                 'updated_at' => now(),
             ]);
+
+            // Buscar grupo con cupo disponible
+            $gestion = DB::table('gestiones')->where('activa', true)->first();
+
+            $grupoDisponible = DB::table('grupos')
+                ->where('gestion_id', $gestion->id)
+                ->whereRaw('cupo_actual < cupo_maximo')
+                ->orderBy('id')
+                ->first();
+
+            if ($grupoDisponible) {
+                $yaAsignado = DB::table('asignacion_grupos')
+                    ->where('postulante_id', $postulante->id)
+                    ->where('gestion_id', $gestion->id)
+                    ->exists();
+
+                if (!$yaAsignado) {
+                    DB::table('asignacion_grupos')->insert([
+                        'postulante_id'    => $postulante->id,
+                        'grupo_id'         => $grupoDisponible->id,
+                        'gestion_id'       => $gestion->id,
+                        'fecha_asignacion' => now(),
+                        'created_at'       => now(),
+                        'updated_at'       => now(),
+                    ]);
+
+                    DB::table('grupos')
+                        ->where('id', $grupoDisponible->id)
+                        ->increment('cupo_actual');
+                }
+            }
 
             return redirect()->route('postulante.inscripcion.index')
                 ->with('success', 'Pago realizado correctamente. Ya estas inscrito en el CUP.');

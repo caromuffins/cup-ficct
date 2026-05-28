@@ -39,6 +39,8 @@ class RegisteredUserController extends Controller
             'telefono'         => 'required|string|max:20',
             'colegio'          => 'required|string|max:255',
             'ciudad'           => 'required|string|max:100',
+            'sexo'             => 'required|in:M,F',
+            'direccion'        => 'required|string|max:255',
         ]);
 
         $user = User::create([
@@ -55,6 +57,8 @@ class RegisteredUserController extends Controller
             'telefono'         => $request->telefono,
             'colegio'          => $request->colegio,
             'ciudad'           => $request->ciudad,
+            'sexo'             => $request->sexo,
+            'direccion'        => $request->direccion,
             'estado'           => 'pendiente',
             'created_at'       => now(),
             'updated_at'       => now(),

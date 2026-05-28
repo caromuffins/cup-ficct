@@ -30,6 +30,8 @@
                     <div><p class="text-gray-500">Telefono</p><p class="font-medium text-gray-800 dark:text-gray-100">{{ $postulante->telefono ?? '—' }}</p></div>
                     <div><p class="text-gray-500">Colegio</p><p class="font-medium text-gray-800 dark:text-gray-100">{{ $postulante->colegio ?? '—' }}</p></div>
                     <div><p class="text-gray-500">Ciudad</p><p class="font-medium text-gray-800 dark:text-gray-100">{{ $postulante->ciudad ?? '—' }}</p></div>
+                    <div><p class="text-gray-500">Sexo</p><p class="font-medium text-gray-800 dark:text-gray-100">{{ $postulante->sexo === 'M' ? 'Masculino' : ($postulante->sexo === 'F' ? 'Femenino' : '—') }}</p></div>
+                    <div><p class="text-gray-500">Direccion</p><p class="font-medium text-gray-800 dark:text-gray-100">{{ $postulante->direccion ?? '—' }}</p></div>
                 </div>
             </div>
 

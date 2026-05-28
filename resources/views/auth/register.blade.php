@@ -56,6 +56,26 @@
             <x-input-error :messages="$errors->get('ciudad')" class="mt-2" />
         </div>
 
+        <!-- Sexo -->
+        <div class="mt-4">
+            <x-input-label for="sexo" value="Sexo" />
+            <select id="sexo" name="sexo"
+                class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-gray-100">
+                <option value="">Seleccionar...</option>
+                <option value="M" {{ old('sexo')==='M'?'selected':'' }}>Masculino</option>
+                <option value="F" {{ old('sexo')==='F'?'selected':'' }}>Femenino</option>
+            </select>
+            <x-input-error :messages="$errors->get('sexo')" class="mt-2" />
+        </div>
+
+        <!-- Direccion -->
+        <div class="mt-4">
+            <x-input-label for="direccion" value="Direccion" />
+            <x-text-input id="direccion" class="block mt-1 w-full" type="text"
+                name="direccion" :value="old('direccion')" required />
+            <x-input-error :messages="$errors->get('direccion')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />

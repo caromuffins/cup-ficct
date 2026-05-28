@@ -70,12 +70,15 @@ class PostulanteController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name'            => 'required|string|max:255',
-            'telefono'        => 'nullable|string|max:20',
-            'colegio'         => 'nullable|string|max:255',
-            'ciudad'          => 'nullable|string|max:255',
+            'name'             => 'required|string|max:255',
+            'ci'               => 'nullable|string|unique:postulantes,ci,' . $id,
+            'telefono'         => 'nullable|string|max:20',
+            'colegio'          => 'nullable|string|max:255',
+            'ciudad'           => 'nullable|string|max:100',
             'fecha_nacimiento' => 'nullable|date',
-            'estado'          => 'required|in:pendiente,habilitado,inscrito,admitido,rechazado',
+            'sexo'             => 'nullable|in:M,F',
+            'direccion'        => 'nullable|string|max:255',
+            'estado'           => 'required|in:pendiente,habilitado,inscrito,admitido,rechazado',
         ]);
 
         $postulante = DB::table('postulantes')->where('id', $id)->first();
@@ -90,6 +93,8 @@ class PostulanteController extends Controller
             'colegio'          => $request->colegio,
             'ciudad'           => $request->ciudad,
             'fecha_nacimiento' => $request->fecha_nacimiento,
+            'sexo'             => $request->sexo,
+            'direccion'        => $request->direccion,
             'estado'           => $request->estado,
             'updated_at'       => now(),
         ]);

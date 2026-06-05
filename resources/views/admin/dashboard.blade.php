@@ -46,7 +46,7 @@
                     <h4 class="font-bold text-gray-800 dark:text-gray-100">Gestionar Grupos</h4>
                     <p class="text-gray-500 text-sm mt-1">Generar y administrar grupos del CUP</p>
                 </a>
-                <a href="#" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
+                <a href="{{ route('admin.docentes.index') }}" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
                     <h4 class="font-bold text-gray-800 dark:text-gray-100">Gestionar Docentes</h4>
                     <p class="text-gray-500 text-sm mt-1">Registrar y asignar docentes</p>
                 </a>

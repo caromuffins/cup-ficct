@@ -32,10 +32,14 @@
                             2. Asignar Carreras
                         </button>
                     </form>
-                    <a href="{{ route('admin.admision.publicar') }}"
-                        class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700">
-                        3. Publicar Lista
-                    </a>
+                    <form method="POST" action="{{ route('admin.admision.publicar') }}">
+                        @csrf
+                        <button type="submit"
+                            onclick="return confirm('Publicar lista de admitidos?')"
+                            class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700">
+                            3. Publicar Lista
+                        </button>
+                    </form>
                 </div>
                 <p class="text-gray-500 text-sm mt-3">
                     Primero calcula los resultados, luego asigna carreras segun promedio y cupo disponible.

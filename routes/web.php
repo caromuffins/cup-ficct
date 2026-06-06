@@ -18,6 +18,8 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
+Route::get('/admitidos', [AdmisionController::class, 'listaPublica'])->name('admision.lista-publica');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -51,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('admision', [AdmisionController::class, 'index'])->name('admision.index');
         Route::post('admision/calcular', [AdmisionController::class, 'calcular'])->name('admision.calcular');
         Route::post('admision/asignar-carreras', [AdmisionController::class, 'asignarCarreras'])->name('admision.asignarCarreras');
-        Route::get('admision/publicar', [AdmisionController::class, 'publicar'])->name('admision.publicar');
+        Route::post('admision/publicar', [AdmisionController::class, 'publicar'])->name('admision.publicar');
     });
 
     Route::prefix('docente')->name('docente.')->group(function () {

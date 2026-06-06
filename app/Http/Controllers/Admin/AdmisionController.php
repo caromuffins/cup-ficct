@@ -194,7 +194,45 @@ class AdmisionController extends Controller
 
     public function publicar()
     {
+        $gestion = DB::table('gestiones')->where('activa', true)->first();
+
+        $admitidos = DB::table('admisiones')->where('admitido', true)->count();
+
+        if ($admitidos === 0) {
+            return redirect()->route('admin.admision.index')
+                ->with('error', 'Primero debes calcular resultados y asignar carreras.');
+        }
+
+        DB::table('gestiones')->where('id', $gestion->id)->update([
+            'publicada'  => true,
+            'updated_at' => now(),
+        ]);
+
         return redirect()->route('admin.admision.index')
-            ->with('success', 'Funcionalidad de publicacion proximamente.');
+            ->with('success', 'Lista de admitidos publicada correctamente.');
+    }
+
+    public function listaPublica()
+    {
+        $gestion = DB::table('gestiones')
+            ->where('activa', true)
+            ->first();
+
+        $admitidos = DB::table('admisiones')
+            ->join('postulantes', 'admisiones.postulante_id', '=', 'postulantes.id')
+            ->join('users', 'postulantes.user_id', '=', 'users.id')
+            ->join('carreras', 'admisiones.carrera_asignada_id', '=', 'carreras.id')
+            ->select(
+                'users.name',
+                'postulantes.ci',
+                'carreras.nombre as carrera',
+                'admisiones.opcion_asignada',
+                'admisiones.promedio_general'
+            )
+            ->where('admisiones.admitido', true)
+            ->orderByDesc('admisiones.promedio_general')
+            ->get();
+
+        return view('admision.lista-publica', compact('admitidos', 'gestion'));
     }
 }

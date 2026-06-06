@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\HorarioController;
 use App\Http\Controllers\Admin\NotaController;
 use App\Http\Controllers\Admin\AdmisionController;
 use App\Http\Controllers\Admin\ReporteController;
+use App\Http\Controllers\Admin\ConsultaController;
 use App\Http\Controllers\Postulante\GrupoController as PostulanteGrupoController;
 
 Route::get('/', function () {
@@ -60,6 +61,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reportes/docentes', [ReporteController::class, 'docentes'])->name('reportes.docentes');
         Route::get('reportes/exportar/aprobados', [ReporteController::class, 'exportarAprobados'])->name('reportes.exportar.aprobados');
         Route::get('reportes/exportar/docentes', [ReporteController::class, 'exportarDocentes'])->name('reportes.exportar.docentes');
+        Route::get('consultas', [ConsultaController::class, 'index'])->name('consultas.index');
+        Route::get('consultas/ejecutar', [ConsultaController::class, 'ejecutar'])->name('consultas.ejecutar');
     });
 
     Route::prefix('docente')->name('docente.')->group(function () {

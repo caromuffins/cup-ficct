@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PostulanteController as AdminPostulanteController
 use App\Http\Controllers\Admin\GrupoController as AdminGrupoController;
 use App\Http\Controllers\Admin\DocenteController as AdminDocenteController;
 use App\Http\Controllers\Admin\HorarioController;
+use App\Http\Controllers\Admin\NotaController;
 use App\Http\Controllers\Postulante\GrupoController as PostulanteGrupoController;
 
 Route::get('/', function () {
@@ -43,6 +44,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('horarios', [HorarioController::class, 'index'])->name('horarios.index');
         Route::post('horarios', [HorarioController::class, 'store'])->name('horarios.store');
         Route::delete('horarios/{id}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+        Route::get('notas', [NotaController::class, 'index'])->name('notas.index');
+        Route::get('notas/alumnos', [NotaController::class, 'getAlumnos'])->name('notas.alumnos');
+        Route::post('notas', [NotaController::class, 'store'])->name('notas.store');
     });
 
     Route::prefix('docente')->name('docente.')->group(function () {

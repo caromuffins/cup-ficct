@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\GrupoController as AdminGrupoController;
 use App\Http\Controllers\Admin\DocenteController as AdminDocenteController;
 use App\Http\Controllers\Admin\HorarioController;
 use App\Http\Controllers\Admin\NotaController;
+use App\Http\Controllers\Admin\AdmisionController;
 use App\Http\Controllers\Postulante\GrupoController as PostulanteGrupoController;
 
 Route::get('/', function () {
@@ -47,6 +48,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('notas', [NotaController::class, 'index'])->name('notas.index');
         Route::get('notas/alumnos', [NotaController::class, 'getAlumnos'])->name('notas.alumnos');
         Route::post('notas', [NotaController::class, 'store'])->name('notas.store');
+        Route::get('admision', [AdmisionController::class, 'index'])->name('admision.index');
+        Route::post('admision/calcular', [AdmisionController::class, 'calcular'])->name('admision.calcular');
+        Route::post('admision/asignar-carreras', [AdmisionController::class, 'asignarCarreras'])->name('admision.asignarCarreras');
+        Route::get('admision/publicar', [AdmisionController::class, 'publicar'])->name('admision.publicar');
     });
 
     Route::prefix('docente')->name('docente.')->group(function () {

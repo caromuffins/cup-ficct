@@ -91,6 +91,7 @@ class DocenteController extends Controller
             ->join('materias', 'asignacion_docentes.materia_id', '=', 'materias.id')
             ->select('grupos.nombre as grupo', 'grupos.turno', 'materias.nombre as materia')
             ->where('asignacion_docentes.docente_id', $id)
+            ->distinct()
             ->get();
 
         return view('admin.docentes.show', compact('docente', 'grupos'));

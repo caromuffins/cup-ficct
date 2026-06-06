@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DocenteController as AdminDocenteController;
 use App\Http\Controllers\Admin\HorarioController;
 use App\Http\Controllers\Admin\NotaController;
 use App\Http\Controllers\Admin\AdmisionController;
+use App\Http\Controllers\Admin\ReporteController;
 use App\Http\Controllers\Postulante\GrupoController as PostulanteGrupoController;
 
 Route::get('/', function () {
@@ -54,6 +55,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('admision/calcular', [AdmisionController::class, 'calcular'])->name('admision.calcular');
         Route::post('admision/asignar-carreras', [AdmisionController::class, 'asignarCarreras'])->name('admision.asignarCarreras');
         Route::post('admision/publicar', [AdmisionController::class, 'publicar'])->name('admision.publicar');
+        Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
+        Route::get('reportes/aprobados', [ReporteController::class, 'aprobados'])->name('reportes.aprobados');
+        Route::get('reportes/docentes', [ReporteController::class, 'docentes'])->name('reportes.docentes');
+        Route::get('reportes/exportar/aprobados', [ReporteController::class, 'exportarAprobados'])->name('reportes.exportar.aprobados');
+        Route::get('reportes/exportar/docentes', [ReporteController::class, 'exportarDocentes'])->name('reportes.exportar.docentes');
     });
 
     Route::prefix('docente')->name('docente.')->group(function () {

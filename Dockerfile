@@ -25,4 +25,6 @@ RUN chmod +x /start.sh
 
 EXPOSE 8080
 
+RUN nginx -t 2>&1 || true
+
 CMD ["/start.sh"]

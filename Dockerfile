@@ -20,8 +20,9 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 
-RUN echo '#!/bin/sh\nsed -i "s/\$PORT/$PORT/g" /etc/nginx/sites-available/default\nnginx &\nphp-fpm' > /start.sh && chmod +x /start.sh
+COPY docker/start.sh /start.sh
+RUN chmod +x /start.sh
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["/start.sh"]

@@ -1,7 +1,7 @@
 FROM php:8.4-cli
 
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip \
+    git curl zip unzip nodejs npm \
     libpq-dev libzip-dev libxml2-dev \
     libonig-dev libpng-dev \
     && docker-php-ext-install \
@@ -14,6 +14,7 @@ WORKDIR /var/www/html
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN npm install && npm run build
 
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache

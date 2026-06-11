@@ -1,9 +1,11 @@
 FROM php:8.4-cli
 
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip nodejs npm \
-    libpq-dev libzip-dev libxml2-dev \
-    libonig-dev libpng-dev \
+    git curl zip unzip libpq-dev libzip-dev \
+    libxml2-dev libonig-dev libpng-dev \
+    ca-certificates gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
     && docker-php-ext-install \
     pdo pdo_pgsql mbstring xml zip bcmath \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -14,11 +16,16 @@ WORKDIR /var/www/html
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
-RUN npm install && npm run build
+RUN npm ci && npm run build
 
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8080
 
-CMD php artisan serve --host=0.0.0.0 --port=$PORT
+CMD php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    php artisan migrate --force && \
+    php artisan storage:link && \
+    php artisan serve --host=0.0.0.0 --port=$PORT

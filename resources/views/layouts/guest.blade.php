@@ -43,7 +43,7 @@
 
             <div class="mb-6 text-center px-4">
                 <h2 class="text-2xl font-bold" style="color: #1F4E79;">Sistema CUP FICCT</h2>
-                <p class="text-gray-500 text-sm mt-1">Curso de Ubicación Profesional &bull; Gestión Académica</p>
+                <p class="text-gray-500 text-sm mt-1">Cursos Pre Universitarios &bull; Gestión Académica</p>
             </div>
 
             <div class="w-full sm:max-w-md px-6 py-6 bg-white shadow-lg overflow-hidden sm:rounded-lg"

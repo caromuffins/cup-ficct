@@ -1,6 +1,6 @@
 # Sistema CUP FICCT - UAGRM
 
-Sistema web de gestión del Curso de Ubicación Profesional (CUP) de la Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones, Universidad Autónoma Gabriel René Moreno.
+Sistema web de gestión del Cursos Pre Universitarios (CUP) de la Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones, Universidad Autónoma Gabriel René Moreno.
 
 ---
 

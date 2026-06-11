@@ -156,6 +156,156 @@ class ReporteController extends Controller
         return $this->exportarPDF($datos, 'Reporte de Docentes', $gestion);
     }
 
+    public function notas(Request $request)
+    {
+        $gestion  = DB::table('gestiones')->where('activa', true)->first();
+        $grupos   = DB::table('grupos')->where('gestion_id', $gestion->id)->get();
+        $materias = DB::table('materias')->get();
+        $datos    = collect();
+        $examenes = collect();
+
+        if ($request->filled('grupo_id')) {
+            $alumnos = DB::table('asignacion_grupos')
+                ->join('postulantes', 'asignacion_grupos.postulante_id', '=', 'postulantes.id')
+                ->join('users', 'postulantes.user_id', '=', 'users.id')
+                ->where('asignacion_grupos.grupo_id', $request->grupo_id)
+                ->select('postulantes.id as postulante_id', 'users.name', 'postulantes.ci')
+                ->orderBy('users.name')
+                ->get();
+
+            if ($request->filled('materia_id')) {
+                $examenes = DB::table('examenes')
+                    ->where('materia_id', $request->materia_id)
+                    ->orderBy('tipo')
+                    ->get();
+
+                $umbral = $examenes->sum('puntaje_maximo') * 0.51;
+
+                $datos = $alumnos->map(function ($alumno) use ($examenes, $umbral) {
+                    $notasRaw = DB::table('notas')
+                        ->where('postulante_id', $alumno->postulante_id)
+                        ->whereIn('examen_id', $examenes->pluck('id'))
+                        ->get()->keyBy('examen_id');
+
+                    $notasArr = [];
+                    $total    = 0;
+                    foreach ($examenes as $ex) {
+                        $n = isset($notasRaw[$ex->id]) ? $notasRaw[$ex->id]->nota : null;
+                        $notasArr[$ex->id] = $n;
+                        $total += $n ?? 0;
+                    }
+
+                    return (object)[
+                        'postulante_id' => $alumno->postulante_id,
+                        'name'          => $alumno->name,
+                        'ci'            => $alumno->ci,
+                        'notas'         => $notasArr,
+                        'total'         => $total,
+                        'aprobado'      => $total >= $umbral,
+                    ];
+                });
+            } else {
+                $datos = $alumnos->map(function ($alumno) {
+                    $resultados = DB::table('resultado_materias')
+                        ->join('materias', 'resultado_materias.materia_id', '=', 'materias.id')
+                        ->where('resultado_materias.postulante_id', $alumno->postulante_id)
+                        ->select('materias.nombre as materia', 'resultado_materias.total', 'resultado_materias.aprobado')
+                        ->get();
+
+                    return (object)[
+                        'postulante_id' => $alumno->postulante_id,
+                        'name'          => $alumno->name,
+                        'ci'            => $alumno->ci,
+                        'resultados'    => $resultados,
+                    ];
+                });
+            }
+        }
+
+        return view('admin.reportes.notas', compact('grupos', 'materias', 'datos', 'examenes', 'gestion'));
+    }
+
+    public function exportarNotas(Request $request)
+    {
+        $gestion = DB::table('gestiones')->where('activa', true)->first();
+
+        if (!$request->filled('grupo_id')) {
+            return redirect()->route('admin.reportes.notas');
+        }
+
+        $grupo   = DB::table('grupos')->find($request->grupo_id);
+        $alumnos = DB::table('asignacion_grupos')
+            ->join('postulantes', 'asignacion_grupos.postulante_id', '=', 'postulantes.id')
+            ->join('users', 'postulantes.user_id', '=', 'users.id')
+            ->where('asignacion_grupos.grupo_id', $request->grupo_id)
+            ->select('postulantes.id as postulante_id', 'users.name', 'postulantes.ci')
+            ->orderBy('users.name')
+            ->get();
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="notas_'.$grupo->nombre.'_'.date('Y-m-d').'.csv"',
+        ];
+
+        if ($request->filled('materia_id')) {
+            $examenes     = DB::table('examenes')->where('materia_id', $request->materia_id)->orderBy('tipo')->get();
+            $puntajeTotal = $examenes->sum('puntaje_maximo');
+
+            $callback = function () use ($alumnos, $examenes, $puntajeTotal) {
+                $file = fopen('php://output', 'w');
+                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+                $head = ['CI', 'Nombre'];
+                foreach ($examenes as $ex) {
+                    $head[] = ucfirst(str_replace(['parcial1','parcial2'], ['Parcial 1','Parcial 2'], $ex->tipo)).' ('.$ex->puntaje_maximo.')';
+                }
+                $head[] = 'Total ('.$puntajeTotal.')';
+                $head[] = 'Estado';
+                fputcsv($file, $head);
+                foreach ($alumnos as $alumno) {
+                    $notasRaw = DB::table('notas')
+                        ->where('postulante_id', $alumno->postulante_id)
+                        ->whereIn('examen_id', $examenes->pluck('id'))
+                        ->get()->keyBy('examen_id');
+                    $row   = [$alumno->ci, $alumno->name];
+                    $total = 0;
+                    foreach ($examenes as $ex) {
+                        $n = isset($notasRaw[$ex->id]) ? $notasRaw[$ex->id]->nota : 0;
+                        $row[] = $n;
+                        $total += $n;
+                    }
+                    $row[] = $total;
+                    $row[] = $total >= $puntajeTotal * 0.51 ? 'Aprobado' : 'Reprobado';
+                    fputcsv($file, $row);
+                }
+                fclose($file);
+            };
+        } else {
+            $materias = DB::table('materias')->get();
+
+            $callback = function () use ($alumnos, $materias) {
+                $file = fopen('php://output', 'w');
+                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+                $head = ['CI', 'Nombre'];
+                foreach ($materias as $m) { $head[] = $m->nombre; }
+                fputcsv($file, $head);
+                foreach ($alumnos as $alumno) {
+                    $resultados = DB::table('resultado_materias')
+                        ->where('postulante_id', $alumno->postulante_id)
+                        ->get()->keyBy('materia_id');
+                    $row = [$alumno->ci, $alumno->name];
+                    foreach ($materias as $m) {
+                        $r     = $resultados[$m->id] ?? null;
+                        $row[] = $r ? $r->total : '—';
+                    }
+                    fputcsv($file, $row);
+                }
+                fclose($file);
+            };
+        }
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     private function exportarExcel($datos, $nombre)
     {
         $headers = [

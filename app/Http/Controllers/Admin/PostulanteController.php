@@ -167,10 +167,27 @@ class PostulanteController extends Controller
             'estado' => 'required|in:aprobado,rechazado',
         ]);
 
+        $requisito     = DB::table('requisito_postulante')->where('id', $id)->first();
+        $postulante_id = $requisito->postulante_id;
+
         DB::table('requisito_postulante')->where('id', $id)->update([
             'estado'     => $request->estado,
             'updated_at' => now(),
         ]);
+
+        if ($request->estado === 'aprobado') {
+            $pendientes = DB::table('requisito_postulante')
+                ->where('postulante_id', $postulante_id)
+                ->where('estado', '!=', 'aprobado')
+                ->count();
+
+            if ($pendientes === 0) {
+                DB::table('postulantes')->where('id', $postulante_id)->update([
+                    'estado'     => 'habilitado',
+                    'updated_at' => now(),
+                ]);
+            }
+        }
 
         return back()->with('success', 'Requisito actualizado correctamente.');
     }

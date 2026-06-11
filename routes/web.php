@@ -14,13 +14,17 @@ use App\Http\Controllers\Admin\NotaController;
 use App\Http\Controllers\Admin\AdmisionController;
 use App\Http\Controllers\Admin\ReporteController;
 use App\Http\Controllers\Admin\ConsultaController;
+use App\Http\Controllers\Admin\GestionController;
 use App\Http\Controllers\Docente\DashboardController as DocenteDashboardController;
 use App\Http\Controllers\Postulante\GrupoController as PostulanteGrupoController;
 use App\Http\Controllers\Postulante\ResultadosController as PostulanteResultadosController;
 
 Route::get('/', function () {
-    return redirect('/login');
-});
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('landing');
+})->name('home');
 
 Route::get('/admitidos', [AdmisionController::class, 'listaPublica'])->name('admision.lista-publica');
 
@@ -63,11 +67,20 @@ Route::middleware(['auth'])->group(function () {
         Route::post('admision/calcular', [AdmisionController::class, 'calcular'])->name('admision.calcular');
         Route::post('admision/asignar-carreras', [AdmisionController::class, 'asignarCarreras'])->name('admision.asignarCarreras');
         Route::post('admision/publicar', [AdmisionController::class, 'publicar'])->name('admision.publicar');
+        Route::get('gestiones', [GestionController::class, 'index'])->name('gestiones.index');
+        Route::get('gestiones/create', [GestionController::class, 'create'])->name('gestiones.create');
+        Route::post('gestiones', [GestionController::class, 'store'])->name('gestiones.store');
+        Route::get('gestiones/{id}/edit', [GestionController::class, 'edit'])->name('gestiones.edit');
+        Route::put('gestiones/{id}', [GestionController::class, 'update'])->name('gestiones.update');
+        Route::delete('gestiones/{id}', [GestionController::class, 'destroy'])->name('gestiones.destroy');
+        Route::post('gestiones/{id}/activar', [GestionController::class, 'activar'])->name('gestiones.activar');
         Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
         Route::get('reportes/aprobados', [ReporteController::class, 'aprobados'])->name('reportes.aprobados');
         Route::get('reportes/docentes', [ReporteController::class, 'docentes'])->name('reportes.docentes');
+        Route::get('reportes/notas', [ReporteController::class, 'notas'])->name('reportes.notas');
         Route::get('reportes/exportar/aprobados', [ReporteController::class, 'exportarAprobados'])->name('reportes.exportar.aprobados');
         Route::get('reportes/exportar/docentes', [ReporteController::class, 'exportarDocentes'])->name('reportes.exportar.docentes');
+        Route::get('reportes/exportar/notas', [ReporteController::class, 'exportarNotas'])->name('reportes.exportar.notas');
         Route::get('consultas', [ConsultaController::class, 'index'])->name('consultas.index');
         Route::get('consultas/ejecutar', [ConsultaController::class, 'ejecutar'])->name('consultas.ejecutar');
     });

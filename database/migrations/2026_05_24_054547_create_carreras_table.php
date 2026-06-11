@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('carreras', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre');
+            $table->string('codigo')->unique();
+            $table->text('descripcion')->nullable();
+            $table->integer('cupo_maximo')->default(80);
+            $table->boolean('activa')->default(true);
             $table->timestamps();
         });
     }

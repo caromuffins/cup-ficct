@@ -118,12 +118,37 @@ Luego abrí el navegador en: **http://127.0.0.1:8000**
 
 ## Credenciales de prueba
 
-| Rol | Email | Contraseña |
-|---|---|---|
-| Administrador | admin@cup.com | password |
-| Postulante | postulante@test.com | password |
+### Administrador
 
-> Si el seeder no crea estos usuarios, registrate como postulante desde la página de registro.
+| Campo | Valor |
+|---|---|
+| Tab en login | Administrador |
+| Email | `admin@ficct.uagrm.edu.bo` |
+| Contraseña | `admin1234` |
+
+### Docentes
+
+| Email | Contraseña |
+|---|---|
+| `cmamani@ficct.uagrm.edu.bo` | `docente1234` |
+| `mrodriguez@ficct.uagrm.edu.bo` | `docente1234` |
+| `jperez@ficct.uagrm.edu.bo` | `docente1234` |
+| `agutierrez@ficct.uagrm.edu.bo` | `docente1234` |
+| `lvargas@ficct.uagrm.edu.bo` | `docente1234` |
+
+### Estudiantes (postulantes)
+
+Los estudiantes inician sesión con su **CI** (no email). El seeder crea 500 postulantes con CIs del `10000010` al `10000509` y contraseña `postulante1234`.
+
+| Campo | Valor |
+|---|---|
+| Tab en login | Estudiante |
+| CI | `10000010` (o cualquiera hasta `10000509`) |
+| Contraseña | `postulante1234` |
+
+También podés registrar un estudiante nuevo desde el botón **Crear cuenta** en el tab Estudiante.
+
+> El login distingue el tipo de usuario por tab. Usar el tab equivocado con credenciales correctas mostrará el error "Credenciales incorrectas para este tipo de usuario".
 
 ---
 

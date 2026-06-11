@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Imports\PostulantesImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -112,6 +113,52 @@ class PostulanteController extends Controller
 
         return redirect()->route('admin.postulantes.index')
             ->with('success', 'Postulante eliminado correctamente.');
+    }
+
+    public function importar()
+    {
+        return view('admin.postulantes.importar');
+    }
+
+    public function importarProcesar(Request $request)
+    {
+        $request->validate([
+            'archivo' => 'required|file|mimes:xlsx,xls,csv|max:4096',
+        ]);
+
+        $path = $request->file('archivo')->store('imports', 'local');
+        $fullPath = storage_path('app/' . $path);
+
+        $import = new PostulantesImport();
+        $import->fromFile($fullPath);
+
+        // Eliminar el archivo temporal
+        \Illuminate\Support\Facades\Storage::disk('local')->delete($path);
+
+        return back()->with([
+            'import_importados' => $import->importados,
+            'import_omitidos'   => $import->omitidos,
+            'import_errores'    => $import->errores,
+        ]);
+    }
+
+    public function descargarPlantilla()
+    {
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="plantilla_postulantes.csv"',
+        ];
+
+        $callback = function () {
+            $fp = fopen('php://output', 'w');
+            fputs($fp, "\xEF\xBB\xBF"); // UTF-8 BOM para Excel
+            fputcsv($fp, ['ci', 'nombre', 'email', 'telefono', 'ciudad', 'colegio', 'fecha_nacimiento', 'sexo']);
+            fputcsv($fp, ['12345678', 'Juan Pérez', 'juan.perez@email.com', '70000000', 'Santa Cruz', 'Colegio Nacional', '2000-01-15', 'M']);
+            fputcsv($fp, ['87654321', 'María López', 'maria.lopez@email.com', '71111111', 'Cochabamba', 'U.E. San Ignacio', '2001-03-22', 'F']);
+            fclose($fp);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function validarRequisito(Request $request, $id)

@@ -10,12 +10,19 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('pagos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('pagos', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('inscripcion_id')->constrained('inscripciones')->onDelete('cascade');
+        $table->decimal('monto', 8, 2);
+        $table->string('moneda')->default('USD');
+        $table->string('metodo')->default('paypal');
+        $table->enum('estado', ['pendiente', 'completado', 'fallido', 'reembolsado'])->default('pendiente');
+        $table->string('transaccion_id')->nullable()->unique();
+        $table->timestamp('fecha_pago')->nullable();
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

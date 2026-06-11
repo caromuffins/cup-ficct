@@ -140,12 +140,12 @@
                     <h4 class="font-bold text-gray-800 dark:text-gray-100">Mi Grupo</h4>
                     <p class="text-gray-500 text-sm mt-1">Ver grupo y horario asignado</p>
                 </a>
-                <a href="#" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
+                <a href="{{ route('postulante.notas.index') }}" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
                     <h4 class="font-bold text-gray-800 dark:text-gray-100">Mis Notas</h4>
                     <p class="text-gray-500 text-sm mt-1">Ver calificaciones por materia</p>
                 </a>
-                <a href="#" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
-                    <h4 class="font-bold text-gray-800 dark:text-gray-100">Resultado de Admision</h4>
+                <a href="{{ route('postulante.admision.index') }}" class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 hover:bg-blue-50 transition">
+                    <h4 class="font-bold text-gray-800 dark:text-gray-100">Resultado de Admisión</h4>
                     <p class="text-gray-500 text-sm mt-1">Ver si fui admitido a la facultad</p>
                 </a>
             </div>

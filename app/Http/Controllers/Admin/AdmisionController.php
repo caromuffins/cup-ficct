@@ -12,6 +12,14 @@ class AdmisionController extends Controller
     {
         $gestion = DB::table('gestiones')->where('activa', true)->first();
 
+        if (!$gestion) {
+            return view('admin.admision.index', [
+                'resultados' => collect(),
+                'gestion'    => null,
+                'carreras'   => collect(),
+            ]);
+        }
+
         $resultados = DB::table('postulantes')
             ->join('users', 'postulantes.user_id', '=', 'users.id')
             ->join('asignacion_grupos', 'postulantes.id', '=', 'asignacion_grupos.postulante_id')
@@ -34,8 +42,8 @@ class AdmisionController extends Controller
 
         $totalMaterias = DB::table('materias')->count();
 
-        $resultados = $resultados->map(function($r) use ($totalMaterias) {
-            $materiasAprobadas = DB::table('resultado_materias')
+        $resultados = $resultados->map(function ($r) use ($totalMaterias) {
+            $materiasAprobadas     = DB::table('resultado_materias')
                 ->where('postulante_id', $r->id)
                 ->where('aprobado', true)
                 ->count();
@@ -53,6 +61,11 @@ class AdmisionController extends Controller
     public function calcular()
     {
         $gestion = DB::table('gestiones')->where('activa', true)->first();
+
+        if (!$gestion) {
+            return redirect()->route('admin.admision.index')
+                ->with('error', 'No hay una gestión activa.');
+        }
 
         $postulantes   = DB::table('asignacion_grupos')->where('gestion_id', $gestion->id)->pluck('postulante_id');
         $materias      = DB::table('materias')->pluck('id');
@@ -72,7 +85,7 @@ class AdmisionController extends Controller
 
                 if ($notas->isEmpty()) continue;
 
-                $total    = $gestion->modo_evaluacion === 'promedio' ? $notas->avg() : $notas->sum();
+                $total    = $notas->sum();
                 $aprobado = $total >= 60;
 
                 $existe = DB::table('resultado_materias')
@@ -104,7 +117,13 @@ class AdmisionController extends Controller
 
     public function asignarCarreras()
     {
-        $gestion       = DB::table('gestiones')->where('activa', true)->first();
+        $gestion = DB::table('gestiones')->where('activa', true)->first();
+
+        if (!$gestion) {
+            return redirect()->route('admin.admision.index')
+                ->with('error', 'No hay una gestión activa.');
+        }
+
         $totalMaterias = DB::table('materias')->count();
 
         $aptos = DB::table('postulantes')
@@ -163,6 +182,9 @@ class AdmisionController extends Controller
                 }
             }
 
+            // Si no hay cupo en ninguna carrera no se puede insertar (FK no-nullable)
+            if ($carrera_id === null) continue;
+
             $existe = DB::table('admisiones')->where('postulante_id', $postulante->id)->exists();
 
             if ($existe) {
@@ -170,8 +192,9 @@ class AdmisionController extends Controller
                     ->where('postulante_id', $postulante->id)
                     ->update([
                         'carrera_asignada_id' => $carrera_id,
+                        'gestion_id'          => $gestion->id,
                         'promedio_general'    => round($postulante->promedio, 2),
-                        'admitido'            => $carrera_id !== null,
+                        'admitido'            => true,
                         'opcion_asignada'     => $opcion,
                         'updated_at'          => now(),
                     ]);
@@ -179,8 +202,9 @@ class AdmisionController extends Controller
                 DB::table('admisiones')->insert([
                     'postulante_id'       => $postulante->id,
                     'carrera_asignada_id' => $carrera_id,
+                    'gestion_id'          => $gestion->id,
                     'promedio_general'    => round($postulante->promedio, 2),
-                    'admitido'            => $carrera_id !== null,
+                    'admitido'            => true,
                     'opcion_asignada'     => $opcion,
                     'created_at'          => now(),
                     'updated_at'          => now(),
@@ -195,6 +219,11 @@ class AdmisionController extends Controller
     public function publicar()
     {
         $gestion = DB::table('gestiones')->where('activa', true)->first();
+
+        if (!$gestion) {
+            return redirect()->route('admin.admision.index')
+                ->with('error', 'No hay una gestión activa.');
+        }
 
         $admitidos = DB::table('admisiones')->where('admitido', true)->count();
 

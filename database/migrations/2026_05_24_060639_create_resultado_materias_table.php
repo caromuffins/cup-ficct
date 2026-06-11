@@ -10,12 +10,20 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('resultado_materias', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('resultado_materias', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('postulante_id')->constrained('postulantes')->onDelete('cascade');
+        $table->foreignId('materia_id')->constrained('materias')->onDelete('cascade');
+        $table->foreignId('gestion_id')->constrained('gestiones')->onDelete('cascade');
+        $table->decimal('total_parcial1', 5, 2)->default(0);
+        $table->decimal('total_parcial2', 5, 2)->default(0);
+        $table->decimal('total_final', 5, 2)->default(0);
+        $table->decimal('total', 5, 2)->default(0);
+        $table->boolean('aprobado')->default(false);
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

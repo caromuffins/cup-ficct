@@ -76,6 +76,17 @@
             <x-input-error :messages="$errors->get('direccion')" class="mt-2" />
         </div>
 
+        <!-- Turno preferido -->
+        <div class="mt-4">
+            <x-input-label for="turno_preferido" value="Turno preferido para clases" />
+            <select id="turno_preferido" name="turno_preferido"
+                class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-gray-100">
+                <option value="maniana" {{ old('turno_preferido')==='maniana'?'selected':'' }}>Mañana</option>
+                <option value="tarde"   {{ old('turno_preferido')==='tarde'?'selected':'' }}>Tarde</option>
+            </select>
+            <x-input-error :messages="$errors->get('turno_preferido')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />

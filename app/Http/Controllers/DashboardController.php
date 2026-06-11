@@ -28,7 +28,7 @@ public function index()
     }
 
     if ($user->role === 'docente') {
-        return view('docente.dashboard');
+        return redirect()->route('docente.dashboard');
     }
 
     if ($user->role === 'postulante') {

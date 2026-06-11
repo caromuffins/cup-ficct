@@ -115,11 +115,25 @@ class PagoController extends Controller
             // Buscar grupo con cupo disponible
             $gestion = DB::table('gestiones')->where('activa', true)->first();
 
-            $grupoDisponible = DB::table('grupos')
-                ->where('gestion_id', $gestion->id)
-                ->whereRaw('cupo_actual < cupo_maximo')
-                ->orderBy('id')
-                ->first();
+            $turnoPreferido  = $postulante->turno_preferido ?? null;
+            $grupoDisponible = null;
+
+            if ($turnoPreferido) {
+                $grupoDisponible = DB::table('grupos')
+                    ->where('gestion_id', $gestion->id)
+                    ->where('turno', $turnoPreferido)
+                    ->whereRaw('cupo_actual < cupo_maximo')
+                    ->orderBy('id')
+                    ->first();
+            }
+
+            if (!$grupoDisponible) {
+                $grupoDisponible = DB::table('grupos')
+                    ->where('gestion_id', $gestion->id)
+                    ->whereRaw('cupo_actual < cupo_maximo')
+                    ->orderBy('id')
+                    ->first();
+            }
 
             if ($grupoDisponible) {
                 $yaAsignado = DB::table('asignacion_grupos')

@@ -12,6 +12,21 @@
                 <div class="bg-green-100 text-green-800 p-4 rounded mb-4">{{ session('success') }}</div>
             @endif
 
+            <!-- Acciones -->
+            <div class="flex justify-end mb-4">
+                <a href="{{ route('admin.postulantes.importar') }}"
+                   class="inline-flex items-center gap-2 text-white text-sm font-semibold px-4 py-2 rounded-md"
+                   style="background-color: #1F4E79;"
+                   onmouseover="this.style.backgroundColor='#163a5f'"
+                   onmouseout="this.style.backgroundColor='#1F4E79'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Carga masiva (Excel/CSV)
+                </a>
+            </div>
+
             <!-- Filtros -->
             <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 mb-6">
                 <form method="GET" action="{{ route('admin.postulantes.index') }}" class="flex gap-4 flex-wrap">

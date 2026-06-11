@@ -10,11 +10,16 @@ class GrupoSeeder extends Seeder
     public function run(): void
     {
         $turnos = ['maniana', 'tarde'];
-        $rangos = [1 => [1,30], 2 => [31,60], 3 => [61,90], 4 => [91,120]];
+        $rangos = [
+            1 => [1,   125],
+            2 => [126, 250],
+            3 => [251, 375],
+            4 => [376, 500],
+        ];
 
         foreach ($rangos as $gestionId => [$inicio, $fin]) {
             $postulantes = DB::table('postulantes')->whereBetween('id', [$inicio, $fin])->get();
-            $totalGrupos = ceil($postulantes->count() / 15);
+            $totalGrupos = ceil($postulantes->count() / 70);
 
             for ($g = 1; $g <= $totalGrupos; $g++) {
                 DB::table('grupos')->insert([
@@ -28,7 +33,7 @@ class GrupoSeeder extends Seeder
                 ]);
 
                 $grupoId = DB::getPdo()->lastInsertId();
-                $chunk   = $postulantes->slice(($g - 1) * 15, 15);
+                $chunk   = $postulantes->slice(($g - 1) * 70, 70);
 
                 foreach ($chunk as $postulante) {
                     DB::table('asignacion_grupos')->insert([

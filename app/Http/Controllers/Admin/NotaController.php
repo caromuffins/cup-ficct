@@ -11,7 +11,7 @@ class NotaController extends Controller
     public function index()
     {
         $gestion  = DB::table('gestiones')->where('activa', true)->first();
-        $grupos   = DB::table('grupos')->where('gestion_id', $gestion->id)->get();
+        $grupos   = $gestion ? DB::table('grupos')->where('gestion_id', $gestion->id)->get() : collect();
         $materias = DB::table('materias')->get();
 
         return view('admin.notas.index', compact('gestion', 'grupos', 'materias'));
@@ -76,9 +76,11 @@ class NotaController extends Controller
     {
         $gestion    = DB::table('gestiones')->where('activa', true)->first();
         $materia_id = $request->materia_id;
+        $grupo_id   = $request->grupo_id;
         $notas      = $request->notas; // array[postulante_id][examen_id] = puntaje
 
         foreach ($notas as $postulante_id => $examenes) {
+
             foreach ($examenes as $examen_id => $puntaje) {
                 if ($puntaje === null || $puntaje === '') continue;
 
@@ -97,12 +99,13 @@ class NotaController extends Controller
                     DB::table('notas')
                         ->where('postulante_id', $postulante_id)
                         ->where('examen_id', $examen_id)
-                        ->update(['puntaje' => $puntaje, 'updated_at' => now()]);
+                        ->update(['puntaje' => $puntaje, 'grupo_id' => $grupo_id, 'updated_at' => now()]);
                 } else {
                     DB::table('notas')->insert([
                         'postulante_id' => $postulante_id,
                         'examen_id'     => $examen_id,
                         'puntaje'       => $puntaje,
+                        'grupo_id'      => $grupo_id,
                         'created_at'    => now(),
                         'updated_at'    => now(),
                     ]);
@@ -131,7 +134,7 @@ class NotaController extends Controller
 
         if ($notas->isEmpty()) return;
 
-        $total    = $gestion->modo_evaluacion === 'promedio' ? $notas->avg() : $notas->sum();
+        $total    = $notas->sum();
         $aprobado = $total >= 60;
 
         $existe = DB::table('resultado_materias')

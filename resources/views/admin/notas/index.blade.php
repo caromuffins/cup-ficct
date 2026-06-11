@@ -46,6 +46,7 @@
                 <form method="POST" action="{{ route('admin.notas.store') }}">
                     @csrf
                     <input type="hidden" name="materia_id" id="hidden_materia_id">
+                    <input type="hidden" name="grupo_id" id="hidden_grupo_id">
 
                     <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg overflow-hidden">
                         <div class="p-4 border-b flex justify-between items-center">
@@ -103,6 +104,7 @@
 
         examenesData = data.examenes;
         document.getElementById('hidden_materia_id').value = materia_id;
+        document.getElementById('hidden_grupo_id').value = grupo_id;
 
         const materia = document.getElementById('materia_id').options[document.getElementById('materia_id').selectedIndex].text;
         const grupo   = document.getElementById('grupo_id').options[document.getElementById('grupo_id').selectedIndex].text;

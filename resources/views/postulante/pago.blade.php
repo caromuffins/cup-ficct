@@ -44,7 +44,8 @@
                     </div>
                 </div>
 
-                <form method="GET" action="{{ route('postulante.pago.crear') }}">
+                <form method="POST" action="{{ route('postulante.pago.crear') }}">
+                    @csrf
                     <button type="submit"
                         class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

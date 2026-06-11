@@ -10,12 +10,17 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('requisitos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('requisitos', function (Blueprint $table) {
+        $table->id();
+        $table->string('nombre');
+        $table->text('descripcion')->nullable();
+        $table->boolean('obligatorio')->default(true);
+        $table->string('tipo_archivo')->nullable();
+        $table->boolean('activo')->default(true);
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

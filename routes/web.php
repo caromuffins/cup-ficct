@@ -14,7 +14,9 @@ use App\Http\Controllers\Admin\NotaController;
 use App\Http\Controllers\Admin\AdmisionController;
 use App\Http\Controllers\Admin\ReporteController;
 use App\Http\Controllers\Admin\ConsultaController;
+use App\Http\Controllers\Docente\DashboardController as DocenteDashboardController;
 use App\Http\Controllers\Postulante\GrupoController as PostulanteGrupoController;
+use App\Http\Controllers\Postulante\ResultadosController as PostulanteResultadosController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -28,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('postulante')->name('postulante.')->group(function () {
+    Route::prefix('postulante')->name('postulante.')->middleware('role:postulante')->group(function () {
         Route::get('/inscripcion', [InscripcionController::class, 'index'])->name('inscripcion.index');
         Route::post('/inscripcion', [InscripcionController::class, 'store'])->name('inscripcion.store');
         Route::get('/requisitos', [RequisitoController::class, 'index'])->name('requisitos.index');
@@ -37,9 +39,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pago/exitoso',  [PagoController::class, 'exitoso'])->name('pago.exitoso');
         Route::get('/pago/cancelado',[PagoController::class, 'cancelado'])->name('pago.cancelado');
         Route::get('/grupo', [PostulanteGrupoController::class, 'index'])->name('grupo.index');
+        Route::get('/notas', [PostulanteResultadosController::class, 'notas'])->name('notas.index');
+        Route::get('/admision', [PostulanteResultadosController::class, 'admision'])->name('admision.index');
     });
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+        Route::get('postulantes/importar', [AdminPostulanteController::class, 'importar'])->name('postulantes.importar');
+        Route::post('postulantes/importar', [AdminPostulanteController::class, 'importarProcesar'])->name('postulantes.importar.procesar');
+        Route::get('postulantes/plantilla', [AdminPostulanteController::class, 'descargarPlantilla'])->name('postulantes.plantilla');
         Route::resource('postulantes', AdminPostulanteController::class);
         Route::post('requisitos/{id}/validar', [AdminPostulanteController::class, 'validarRequisito'])->name('requisitos.validar');
         Route::get('grupos', [AdminGrupoController::class, 'index'])->name('grupos.index');
@@ -65,8 +72,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('consultas/ejecutar', [ConsultaController::class, 'ejecutar'])->name('consultas.ejecutar');
     });
 
-    Route::prefix('docente')->name('docente.')->group(function () {
-        // rutas del docente aqui
+    Route::prefix('docente')->name('docente.')->middleware('role:docente')->group(function () {
+        Route::get('dashboard', [DocenteDashboardController::class, 'index'])->name('dashboard');
+        Route::get('grupos', [DocenteDashboardController::class, 'grupos'])->name('grupos');
+        Route::get('horario', [DocenteDashboardController::class, 'horario'])->name('horario');
+        Route::get('notas', [DocenteDashboardController::class, 'notas'])->name('notas');
+        Route::get('notas/alumnos', [DocenteDashboardController::class, 'getAlumnos'])->name('notas.alumnos');
+        Route::post('notas', [DocenteDashboardController::class, 'storeNotas'])->name('notas.store');
     });
 });
 

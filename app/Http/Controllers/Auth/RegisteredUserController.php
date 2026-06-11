@@ -41,6 +41,7 @@ class RegisteredUserController extends Controller
             'ciudad'           => 'required|string|max:100',
             'sexo'             => 'required|in:M,F',
             'direccion'        => 'required|string|max:255',
+            'turno_preferido'  => 'nullable|in:maniana,tarde',
         ]);
 
         $user = User::create([
@@ -60,6 +61,7 @@ class RegisteredUserController extends Controller
             'sexo'             => $request->sexo,
             'direccion'        => $request->direccion,
             'estado'           => 'pendiente',
+            'turno_preferido'  => $request->turno_preferido,
             'created_at'       => now(),
             'updated_at'       => now(),
         ]);

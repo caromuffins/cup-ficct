@@ -12,6 +12,13 @@ class GrupoController extends Controller
     {
         $gestion = DB::table('gestiones')->where('activa', true)->first();
 
+        if (!$gestion) {
+            return view('admin.grupos.index', [
+                'gestion' => null, 'grupos' => collect(),
+                'totalInscritos' => 0, 'sinGrupo' => 0, 'gruposNecesarios' => 0,
+            ])->with('error', 'No hay una gestión activa.');
+        }
+
         $grupos = DB::table('grupos')
             ->where('gestion_id', $gestion->id)
             ->orderBy('nombre')

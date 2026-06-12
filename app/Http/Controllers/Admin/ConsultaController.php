@@ -11,7 +11,7 @@ class ConsultaController extends Controller
     public function index()
     {
         $gestion  = DB::table('gestiones')->where('activa', true)->first();
-        $grupos   = DB::table('grupos')->where('gestion_id', $gestion->id)->get();
+        $grupos   = $gestion ? DB::table('grupos')->where('gestion_id', $gestion->id)->get() : collect();
         $materias = DB::table('materias')->get();
         $carreras = DB::table('carreras')->get();
 
@@ -21,6 +21,12 @@ class ConsultaController extends Controller
     public function ejecutar(Request $request)
     {
         $gestion  = DB::table('gestiones')->where('activa', true)->first();
+
+        if (!$gestion) {
+            return redirect()->route('admin.consultas.index')
+                ->with('error', 'No hay una gestión activa.');
+        }
+
         $grupos   = DB::table('grupos')->where('gestion_id', $gestion->id)->get();
         $materias = DB::table('materias')->get();
         $carreras = DB::table('carreras')->get();

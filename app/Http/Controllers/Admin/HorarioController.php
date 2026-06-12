@@ -12,6 +12,13 @@ class HorarioController extends Controller
     {
         $gestion = DB::table('gestiones')->where('activa', true)->first();
 
+        if (!$gestion) {
+            return view('admin.horarios.index', [
+                'horarios' => collect(), 'grupos' => collect(), 'materias' => collect(),
+                'docentes' => collect(), 'aulas' => collect(), 'gestion' => null,
+            ])->with('error', 'No hay una gestión activa.');
+        }
+
         $horarios = DB::table('horarios')
             ->join('grupos', 'horarios.grupo_id', '=', 'grupos.id')
             ->join('materias', 'horarios.materia_id', '=', 'materias.id')
@@ -53,17 +60,39 @@ class HorarioController extends Controller
             'hora_fin'    => 'required|after:hora_inicio',
         ]);
 
-        // Verificar cruce de horarios del docente
-        $cruce = DB::table('horarios')
+        // Verificar que el docente enseña esta materia (área coincide)
+        $docente = DB::table('docentes')->where('id', $request->docente_id)->first();
+        $materia = DB::table('materias')->where('id', $request->materia_id)->first();
+
+        if ($docente && $materia && strtolower($docente->especialidad) !== strtolower($materia->nombre)) {
+            return back()
+                ->with('error', "El docente es de '{$docente->especialidad}' y no puede dictar '{$materia->nombre}'.")
+                ->withInput();
+        }
+
+        // Verificar cruce de horarios del docente (overlapping intervals: A < D AND B > C)
+        $cruceDocente = DB::table('horarios')
             ->where('docente_id', $request->docente_id)
             ->where('dia', $request->dia)
-            ->where(function($q) use ($request) {
-                $q->whereBetween('hora_inicio', [$request->hora_inicio, $request->hora_fin])
-                  ->orWhereBetween('hora_fin', [$request->hora_inicio, $request->hora_fin]);
-            })->exists();
+            ->where('hora_inicio', '<', $request->hora_fin)
+            ->where('hora_fin', '>', $request->hora_inicio)
+            ->exists();
 
-        if ($cruce) {
-            return back()->with('error', 'El docente ya tiene un horario asignado en ese dia y hora.')
+        if ($cruceDocente) {
+            return back()->with('error', 'El docente ya tiene un horario asignado en ese día y hora.')
+                         ->withInput();
+        }
+
+        // Verificar cruce de horarios del aula
+        $cruceAula = DB::table('horarios')
+            ->where('aula_id', $request->aula_id)
+            ->where('dia', $request->dia)
+            ->where('hora_inicio', '<', $request->hora_fin)
+            ->where('hora_fin', '>', $request->hora_inicio)
+            ->exists();
+
+        if ($cruceAula) {
+            return back()->with('error', 'El aula ya está ocupada en ese día y hora.')
                          ->withInput();
         }
 
@@ -78,7 +107,7 @@ class HorarioController extends Controller
             ->value('max_grupos');
 
         if ($gruposAsignados >= $maxGrupos) {
-            return back()->with('error', 'El docente ya alcanzo el maximo de grupos permitidos ('.$maxGrupos.').')
+            return back()->with('error', 'El docente ya alcanzó el máximo de grupos permitidos ('.$maxGrupos.').')
                          ->withInput();
         }
 

@@ -37,10 +37,14 @@
                         Generar reporte
                     </button>
                     @if(request('grupo_id'))
-                    <a href="{{ route('admin.reportes.exportar.notas', request()->query()) }}"
-                       class="px-4 py-2 text-sm font-semibold rounded-md border text-gray-700 hover:bg-gray-50">
-                        Exportar CSV
-                    </a>
+                    <a href="{{ route('admin.reportes.exportar.notas', array_merge(request()->query(), ['formato'=>'xlsx'])) }}"
+                       class="px-4 py-2 text-sm font-semibold rounded-md text-white"
+                       style="background-color:#166534;">Excel (.xlsx)</a>
+                    <a href="{{ route('admin.reportes.exportar.notas', array_merge(request()->query(), ['formato'=>'csv'])) }}"
+                       class="px-4 py-2 text-sm font-semibold rounded-md border text-gray-700 hover:bg-gray-50">CSV</a>
+                    <a href="{{ route('admin.reportes.exportar.notas', array_merge(request()->query(), ['formato'=>'pdf'])) }}"
+                       target="_blank"
+                       class="px-4 py-2 text-sm font-semibold rounded-md text-white bg-red-600 hover:bg-red-700">PDF</a>
                     @endif
                 </form>
             </div>

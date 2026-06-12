@@ -10,22 +10,27 @@ class GrupoSeeder extends Seeder
     public function run(): void
     {
         $turnos = ['maniana', 'tarde'];
+
+        // 250 postulantes por gestión → rangos de IDs secuenciales
         $rangos = [
-            1 => [1,   125],
-            2 => [126, 250],
-            3 => [251, 375],
-            4 => [376, 500],
+            1 => [1,    250],
+            2 => [251,  500],
+            3 => [501,  750],
+            4 => [751, 1000],
         ];
 
+        // ceil(250/70) = 4 grupos por gestión → 16 grupos en total
         foreach ($rangos as $gestionId => [$inicio, $fin]) {
             $postulantes = DB::table('postulantes')->whereBetween('id', [$inicio, $fin])->get();
-            $totalGrupos = ceil($postulantes->count() / 70);
+            $totalGrupos = (int) ceil($postulantes->count() / 70);
+
+            $docentes = DB::table('docentes')->pluck('id')->values();
 
             for ($g = 1; $g <= $totalGrupos; $g++) {
                 DB::table('grupos')->insert([
                     'gestion_id'  => $gestionId,
                     'nombre'      => "Grupo $g",
-                    'turno'       => $turnos[$g % 2],
+                    'turno'       => $turnos[($g - 1) % 2],
                     'cupo_maximo' => 70,
                     'cupo_actual' => 0,
                     'created_at'  => now(),
@@ -47,8 +52,10 @@ class GrupoSeeder extends Seeder
                     DB::table('grupos')->where('id', $grupoId)->increment('cupo_actual');
                 }
 
-                $materiaDocente = [1 => 1, 2 => 2, 3 => 3, 4 => 4];
-                foreach ($materiaDocente as $materiaId => $docenteId) {
+                // Asignar docentes a materias (rotando si hay menos de 4)
+                $materiaIds = [1, 2, 3, 4];
+                foreach ($materiaIds as $idx => $materiaId) {
+                    $docenteId = $docentes[$idx % $docentes->count()];
                     DB::table('asignacion_docentes')->insert([
                         'docente_id'  => $docenteId,
                         'grupo_id'    => $grupoId,

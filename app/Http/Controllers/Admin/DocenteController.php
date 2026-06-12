@@ -42,6 +42,8 @@ class DocenteController extends Controller
             'name'                 => 'required|string|max:255',
             'email'                => 'required|email|unique:users,email',
             'password'             => 'required|min:8',
+            'ci'                   => 'required|string|max:20|unique:docentes,ci',
+            'telefono'             => 'nullable|string|max:20',
             'especialidad'         => 'nullable|string|max:255',
             'titulo_profesional'   => 'nullable|string|max:255',
             'tiene_maestria'       => 'boolean',
@@ -49,7 +51,17 @@ class DocenteController extends Controller
             'tiene_diplomado'      => 'boolean',
             'area_diplomado'       => 'nullable|string|max:255',
             'estado_contratacion'  => 'required|in:pendiente,contratado,rechazado',
+            'max_grupos'           => 'required|integer|min:1|max:8',
         ]);
+
+        $tieneMaestria  = $request->boolean('tiene_maestria');
+        $tieneDiplomado = $request->boolean('tiene_diplomado');
+
+        if ($request->estado_contratacion === 'contratado' && !$tieneMaestria && !$tieneDiplomado) {
+            return back()
+                ->with('error', 'Para contratar un docente debe tener Maestría o Diplomado en Educación Superior.')
+                ->withInput();
+        }
 
         $user = DB::table('users')->insertGetId([
             'name'       => $request->name,
@@ -62,14 +74,16 @@ class DocenteController extends Controller
 
         DB::table('docentes')->insert([
             'user_id'              => $user,
+            'ci'                   => $request->ci,
+            'telefono'             => $request->telefono,
             'especialidad'         => $request->especialidad,
             'titulo_profesional'   => $request->titulo_profesional,
-            'tiene_maestria'       => $request->boolean('tiene_maestria'),
+            'tiene_maestria'       => $tieneMaestria,
             'area_maestria'        => $request->area_maestria,
-            'tiene_diplomado'      => $request->boolean('tiene_diplomado'),
+            'tiene_diplomado'      => $tieneDiplomado,
             'area_diplomado'       => $request->area_diplomado,
             'estado_contratacion'  => $request->estado_contratacion,
-            'max_grupos'           => 4,
+            'max_grupos'           => $request->max_grupos,
             'created_at'           => now(),
             'updated_at'           => now(),
         ]);
@@ -124,6 +138,15 @@ class DocenteController extends Controller
             'max_grupos'          => 'required|integer|min:1|max:4',
         ]);
 
+        $tieneMaestria  = $request->boolean('tiene_maestria');
+        $tieneDiplomado = $request->boolean('tiene_diplomado');
+
+        if ($request->estado_contratacion === 'contratado' && !$tieneMaestria && !$tieneDiplomado) {
+            return back()
+                ->with('error', 'Para contratar un docente debe tener Maestría o Diplomado en Educación Superior.')
+                ->withInput();
+        }
+
         DB::table('users')->where('id', $docente->user_id)->update([
             'name'       => $request->name,
             'updated_at' => now(),
@@ -132,9 +155,9 @@ class DocenteController extends Controller
         DB::table('docentes')->where('id', $id)->update([
             'especialidad'        => $request->especialidad,
             'titulo_profesional'  => $request->titulo_profesional,
-            'tiene_maestria'      => $request->boolean('tiene_maestria'),
+            'tiene_maestria'      => $tieneMaestria,
             'area_maestria'       => $request->area_maestria,
-            'tiene_diplomado'     => $request->boolean('tiene_diplomado'),
+            'tiene_diplomado'     => $tieneDiplomado,
             'area_diplomado'      => $request->area_diplomado,
             'estado_contratacion' => $request->estado_contratacion,
             'max_grupos'          => $request->max_grupos,

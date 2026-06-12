@@ -5,13 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class ReporteController extends Controller
 {
     public function index()
     {
         $gestion  = DB::table('gestiones')->where('activa', true)->first();
-        $grupos   = DB::table('grupos')->where('gestion_id', $gestion->id)->get();
+        $grupos   = $gestion ? DB::table('grupos')->where('gestion_id', $gestion->id)->get() : collect();
         $materias = DB::table('materias')->get();
         $carreras = DB::table('carreras')->get();
         $docentes = DB::table('docentes')
@@ -117,13 +122,14 @@ class ReporteController extends Controller
             ->orderByDesc('admisiones.promedio_general')
             ->get();
 
-        $formato = $request->formato ?? 'excel';
+        $formato = $request->formato ?? 'xlsx';
+        $anio    = $gestion->anio ?? date('Y');
 
-        if ($formato === 'excel') {
-            return $this->exportarExcel($datos, 'reporte_aprobados_'.$gestion->anio);
-        }
-
-        return $this->exportarPDF($datos, 'Reporte de Aprobados', $gestion);
+        return match($formato) {
+            'csv'  => $this->exportarCsv($datos, 'reporte_aprobados_'.$anio),
+            'pdf'  => $this->exportarPDF($datos, 'Reporte de Aprobados', $gestion),
+            default => $this->exportarExcel($datos, 'reporte_aprobados_'.$anio),
+        };
     }
 
     public function exportarDocentes(Request $request)
@@ -147,19 +153,20 @@ class ReporteController extends Controller
                       'docentes.tiene_diplomado', 'docentes.estado_contratacion')
             ->get();
 
-        $formato = $request->formato ?? 'excel';
+        $formato = $request->formato ?? 'xlsx';
+        $anio    = $gestion->anio ?? date('Y');
 
-        if ($formato === 'excel') {
-            return $this->exportarExcel($datos, 'reporte_docentes_'.$gestion->anio);
-        }
-
-        return $this->exportarPDF($datos, 'Reporte de Docentes', $gestion);
+        return match($formato) {
+            'csv'  => $this->exportarCsv($datos, 'reporte_docentes_'.$anio),
+            'pdf'  => $this->exportarPDF($datos, 'Reporte de Docentes', $gestion),
+            default => $this->exportarExcel($datos, 'reporte_docentes_'.$anio),
+        };
     }
 
     public function notas(Request $request)
     {
         $gestion  = DB::table('gestiones')->where('activa', true)->first();
-        $grupos   = DB::table('grupos')->where('gestion_id', $gestion->id)->get();
+        $grupos   = $gestion ? DB::table('grupos')->where('gestion_id', $gestion->id)->get() : collect();
         $materias = DB::table('materias')->get();
         $datos    = collect();
         $examenes = collect();
@@ -190,7 +197,7 @@ class ReporteController extends Controller
                     $notasArr = [];
                     $total    = 0;
                     foreach ($examenes as $ex) {
-                        $n = isset($notasRaw[$ex->id]) ? $notasRaw[$ex->id]->nota : null;
+                        $n = isset($notasRaw[$ex->id]) ? $notasRaw[$ex->id]->puntaje : null;
                         $notasArr[$ex->id] = $n;
                         $total += $n ?? 0;
                     }
@@ -242,71 +249,59 @@ class ReporteController extends Controller
             ->orderBy('users.name')
             ->get();
 
-        $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="notas_'.$grupo->nombre.'_'.date('Y-m-d').'.csv"',
-        ];
-
+        // Armar colección plana para exportar
         if ($request->filled('materia_id')) {
             $examenes     = DB::table('examenes')->where('materia_id', $request->materia_id)->orderBy('tipo')->get();
             $puntajeTotal = $examenes->sum('puntaje_maximo');
+            $materia      = DB::table('materias')->find($request->materia_id);
 
-            $callback = function () use ($alumnos, $examenes, $puntajeTotal) {
-                $file = fopen('php://output', 'w');
-                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-                $head = ['CI', 'Nombre'];
+            $filas = collect();
+            foreach ($alumnos as $alumno) {
+                $notasRaw = DB::table('notas')
+                    ->where('postulante_id', $alumno->postulante_id)
+                    ->whereIn('examen_id', $examenes->pluck('id'))
+                    ->get()->keyBy('examen_id');
+                $fila  = (object)['CI' => $alumno->ci, 'Nombre' => $alumno->name];
+                $total = 0;
                 foreach ($examenes as $ex) {
-                    $head[] = ucfirst(str_replace(['parcial1','parcial2'], ['Parcial 1','Parcial 2'], $ex->tipo)).' ('.$ex->puntaje_maximo.')';
+                    $label = ucfirst(str_replace(['parcial1','parcial2'], ['Parcial 1','Parcial 2'], $ex->tipo));
+                    $n     = isset($notasRaw[$ex->id]) ? $notasRaw[$ex->id]->puntaje : 0;
+                    $fila->{$label} = $n;
+                    $total += $n;
                 }
-                $head[] = 'Total ('.$puntajeTotal.')';
-                $head[] = 'Estado';
-                fputcsv($file, $head);
-                foreach ($alumnos as $alumno) {
-                    $notasRaw = DB::table('notas')
-                        ->where('postulante_id', $alumno->postulante_id)
-                        ->whereIn('examen_id', $examenes->pluck('id'))
-                        ->get()->keyBy('examen_id');
-                    $row   = [$alumno->ci, $alumno->name];
-                    $total = 0;
-                    foreach ($examenes as $ex) {
-                        $n = isset($notasRaw[$ex->id]) ? $notasRaw[$ex->id]->nota : 0;
-                        $row[] = $n;
-                        $total += $n;
-                    }
-                    $row[] = $total;
-                    $row[] = $total >= $puntajeTotal * 0.51 ? 'Aprobado' : 'Reprobado';
-                    fputcsv($file, $row);
-                }
-                fclose($file);
-            };
+                $fila->{'Total ('.$puntajeTotal.')'} = $total;
+                $fila->{'Estado'}                   = $total >= $puntajeTotal * 0.51 ? 'Aprobado' : 'Reprobado';
+                $filas->push($fila);
+            }
+            $titulo = 'Notas '.$grupo->nombre.' - '.($materia->nombre ?? '');
         } else {
             $materias = DB::table('materias')->get();
-
-            $callback = function () use ($alumnos, $materias) {
-                $file = fopen('php://output', 'w');
-                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-                $head = ['CI', 'Nombre'];
-                foreach ($materias as $m) { $head[] = $m->nombre; }
-                fputcsv($file, $head);
-                foreach ($alumnos as $alumno) {
-                    $resultados = DB::table('resultado_materias')
-                        ->where('postulante_id', $alumno->postulante_id)
-                        ->get()->keyBy('materia_id');
-                    $row = [$alumno->ci, $alumno->name];
-                    foreach ($materias as $m) {
-                        $r     = $resultados[$m->id] ?? null;
-                        $row[] = $r ? $r->total : '—';
-                    }
-                    fputcsv($file, $row);
+            $filas    = collect();
+            foreach ($alumnos as $alumno) {
+                $resultados = DB::table('resultado_materias')
+                    ->where('postulante_id', $alumno->postulante_id)
+                    ->get()->keyBy('materia_id');
+                $fila = (object)['CI' => $alumno->ci, 'Nombre' => $alumno->name];
+                foreach ($materias as $m) {
+                    $r            = $resultados[$m->id] ?? null;
+                    $fila->{$m->nombre} = $r ? $r->total : '—';
                 }
-                fclose($file);
-            };
+                $filas->push($fila);
+            }
+            $titulo = 'Notas resumen - '.$grupo->nombre;
         }
 
-        return response()->stream($callback, 200, $headers);
+        $nombre  = 'notas_'.str_replace(' ', '_', $grupo->nombre).'_'.date('Y-m-d');
+        $formato = $request->formato ?? 'xlsx';
+
+        return match($formato) {
+            'csv'  => $this->exportarCsv($filas, $nombre),
+            'pdf'  => $this->exportarPDF($filas, $titulo, $gestion),
+            default => $this->exportarExcel($filas, $nombre),
+        };
     }
 
-    private function exportarExcel($datos, $nombre)
+    private function exportarCsv($datos, $nombre)
     {
         $headers = [
             'Content-Type'        => 'text/csv; charset=UTF-8',
@@ -315,7 +310,7 @@ class ReporteController extends Controller
 
         $callback = function() use ($datos) {
             $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             if ($datos->isNotEmpty()) {
                 fputcsv($file, array_keys((array) $datos->first()));
@@ -329,12 +324,57 @@ class ReporteController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    private function exportarExcel($datos, $nombre)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet       = $spreadsheet->getActiveSheet();
+
+        if ($datos->isNotEmpty()) {
+            $cols    = array_keys((array) $datos->first());
+            $colLetr = 'A';
+
+            // Encabezados con fondo azul oscuro
+            foreach ($cols as $col) {
+                $cell = $colLetr . '1';
+                $sheet->setCellValue($cell, strtoupper($col));
+                $sheet->getStyle($cell)->applyFromArray([
+                    'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                    'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1F4E79']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                ]);
+                $sheet->getColumnDimension($colLetr)->setAutoSize(true);
+                $colLetr++;
+            }
+
+            // Datos
+            $row = 2;
+            foreach ($datos as $item) {
+                $colLetr = 'A';
+                foreach ((array) $item as $val) {
+                    $sheet->setCellValue($colLetr . $row, $val);
+                    $colLetr++;
+                }
+                $row++;
+            }
+        }
+
+        $writer   = new Xlsx($spreadsheet);
+        $filename = $nombre . '.xlsx';
+        $tmpPath  = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename;
+        $writer->save($tmpPath);
+
+        return response()->download($tmpPath, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
+    }
+
     private function exportarPDF($datos, $titulo, $gestion)
     {
-        $html = view('admin.reportes.pdf', compact('datos', 'titulo', 'gestion'))->render();
+        $pdf = Pdf::loadView('admin.reportes.pdf', compact('datos', 'titulo', 'gestion'))
+                  ->setPaper('a4', 'landscape');
 
-        return response($html)
-            ->header('Content-Type', 'text/html')
-            ->header('Content-Disposition', 'inline; filename="reporte.html"');
+        $nombre = str_replace([' ', '/'], '_', $titulo) . '.pdf';
+
+        return $pdf->download($nombre);
     }
 }

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Consultas Dinamicas
+            Consultas Dinámicas
         </h2>
     </x-slot>
 
@@ -141,7 +141,7 @@
                                 {{ $r->grupo }}
                                 <span class="text-xs px-1 py-0.5 rounded
                                     {{ $r->turno==='maniana'?'bg-yellow-100 text-yellow-800':'bg-blue-100 text-blue-800' }}">
-                                    {{ ucfirst($r->turno) }}
+                                    {{ $r->turno === 'maniana' ? 'Mañana' : 'Tarde' }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-center">

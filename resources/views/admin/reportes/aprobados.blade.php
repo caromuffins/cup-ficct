@@ -29,13 +29,18 @@
                     </button>
                     <a href="{{ route('admin.reportes.aprobados') }}"
                         class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Limpiar</a>
-                    <a href="{{ route('admin.reportes.exportar.aprobados', array_merge(request()->all(), ['formato'=>'excel'])) }}"
-                        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                        Exportar CSV
+                    <a href="{{ route('admin.reportes.exportar.aprobados', array_merge(request()->all(), ['formato'=>'xlsx'])) }}"
+                        class="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800 text-sm font-semibold">
+                        Excel (.xlsx)
+                    </a>
+                    <a href="{{ route('admin.reportes.exportar.aprobados', array_merge(request()->all(), ['formato'=>'csv'])) }}"
+                        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm font-semibold">
+                        CSV
                     </a>
                     <a href="{{ route('admin.reportes.exportar.aprobados', array_merge(request()->all(), ['formato'=>'pdf'])) }}"
-                        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                        Exportar PDF
+                        target="_blank"
+                        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm font-semibold">
+                        PDF
                     </a>
                 </form>
             </div>

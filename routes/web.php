@@ -101,4 +101,17 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+Route::get('/run-seeders', function () {
+    set_time_limit(300);
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', [
+            '--seed' => true,
+            '--force' => true,
+        ]);
+        return "Base de datos migrada y sembrada con éxito! Ya puedes iniciar sesión.";
+    } catch (\Exception $e) {
+        return "Error al sembrar base de datos: " . $e->getMessage();
+    }
+});
+
 require __DIR__.'/auth.php';

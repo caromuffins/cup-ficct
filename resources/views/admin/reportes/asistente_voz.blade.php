@@ -150,17 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
             card.classList.remove('opacity-0', 'scale-95');
         }, 50);
         setUIReady();
-        
-        // Autoiniciar la grabación tras abrir el modal
-        autoStartTimeout = setTimeout(() => {
-            startRecording();
-        }, 500);
     }
 
     // Cerrar Modal
     function closeModal() {
         stopRecording();
-        clearTimeout(autoStartTimeout);
         clearTimeout(recordMaxTimeout);
         
         card.classList.add('opacity-0', 'scale-95');
@@ -329,7 +323,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Event Listeners
-    btnOpen.addEventListener('click', openModal);
+    btnOpen.addEventListener('click', () => {
+        openModal();
+        startRecording(); // Llamado síncrono dentro del gesto de clic del usuario (crítico para iOS Safari)
+    });
     btnClose.addEventListener('click', closeModal);
     btnCancel.addEventListener('click', closeModal);
 

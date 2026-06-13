@@ -81,6 +81,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reportes/exportar/aprobados', [ReporteController::class, 'exportarAprobados'])->name('reportes.exportar.aprobados');
         Route::get('reportes/exportar/docentes', [ReporteController::class, 'exportarDocentes'])->name('reportes.exportar.docentes');
         Route::get('reportes/exportar/notas', [ReporteController::class, 'exportarNotas'])->name('reportes.exportar.notas');
+        Route::post('reportes/voz', [\App\Http\Controllers\Admin\VoiceAssistantController::class, 'processVoice'])->name('reportes.voz');
         Route::get('consultas', [ConsultaController::class, 'index'])->name('consultas.index');
         Route::get('consultas/ejecutar', [ConsultaController::class, 'ejecutar'])->name('consultas.ejecutar');
         Route::get('bitacora', [\App\Http\Controllers\Admin\BitacoraController::class, 'index'])->name('bitacora.index');
@@ -99,19 +100,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('asistencia', [DocenteDashboardController::class, 'storeAsistencia'])->name('asistencia.store');
         Route::get('asistencia/historial', [DocenteDashboardController::class, 'asistenciaHistorial'])->name('asistencia.historial');
     });
-});
-
-Route::get('/run-seeders', function () {
-    set_time_limit(300);
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', [
-            '--seed' => true,
-            '--force' => true,
-        ]);
-        return "Base de datos migrada y sembrada con éxito! Ya puedes iniciar sesión.";
-    } catch (\Exception $e) {
-        return "Error al sembrar base de datos: " . $e->getMessage();
-    }
 });
 
 require __DIR__.'/auth.php';

@@ -32,5 +32,10 @@
                 {{ $slot }}
             </main>
         </div>
+
+        @if(auth()->check() && auth()->user()->isAdmin())
+            @include('admin.reportes.asistente_voz')
+        @endif
     </body>
 </html>
+

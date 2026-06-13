@@ -36,10 +36,15 @@ class VoiceAssistantController extends Controller
             $audioFile = $request->file('audio');
             $mimeType = $audioFile->getMimeType();
             
-            // Si el mime type contiene 'video' o 'webm', forzar a 'audio/webm' para que Gemini no busque fotogramas de video
-            if (str_contains($mimeType, 'video') || str_contains($mimeType, 'webm') || empty($mimeType) || $mimeType === 'application/octet-stream') {
+            // Mapear MIME types de video/contenedor de audio a sus contrapartes de audio puro para Gemini
+            if (str_contains($mimeType, 'webm') || empty($mimeType) || $mimeType === 'application/octet-stream') {
                 $mimeType = 'audio/webm';
+            } elseif (str_contains($mimeType, 'mp4') || str_contains($mimeType, 'm4a') || str_contains($mimeType, 'quicktime')) {
+                $mimeType = 'audio/mp4';
+            } elseif (str_contains($mimeType, 'ogg')) {
+                $mimeType = 'audio/ogg';
             }
+
 
 
             try {

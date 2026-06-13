@@ -187,9 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 mediaRecorder.onstop = () => {
-                    // Generar Blob con el audio crudo grabado en el navegador
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    uploadAudio(audioBlob);
+                    // Generar Blob con el audio crudo grabado en el navegador usando el mimeType nativo del navegador
+                    const mimeType = mediaRecorder.mimeType || 'audio/webm';
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                    uploadAudio(audioBlob, mimeType);
                 };
 
                 mediaRecorder.start();
@@ -225,11 +226,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Subir el audio grabado a Laravel mediante FormData
-    function uploadAudio(blob) {
+    function uploadAudio(blob, mimeType) {
         setUIProcessing();
 
         const formData = new FormData();
-        formData.append('audio', blob, 'recording.webm');
+        
+        // Determinar la extensión apropiada basada en el mimeType nativo de grabación
+        let extension = 'webm';
+        if (mimeType.includes('mp4') || mimeType.includes('m4a') || mimeType.includes('aac')) {
+            extension = 'mp4';
+        } else if (mimeType.includes('ogg')) {
+            extension = 'ogg';
+        } else if (mimeType.includes('wav')) {
+            extension = 'wav';
+        }
+        
+        formData.append('audio', blob, 'recording.' + extension);
 
         fetch("{{ route('admin.reportes.voz') }}", {
             method: "POST",

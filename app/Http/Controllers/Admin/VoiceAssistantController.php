@@ -40,7 +40,8 @@ class VoiceAssistantController extends Controller
             if (str_contains($mimeType, 'webm') || empty($mimeType) || $mimeType === 'application/octet-stream') {
                 $mimeType = 'audio/webm';
             } elseif (str_contains($mimeType, 'mp4') || str_contains($mimeType, 'm4a') || str_contains($mimeType, 'quicktime')) {
-                $mimeType = 'audio/mp4';
+                // Usar audio/m4a para evitar que Gemini intente extraer fotogramas de video y falle con "0 frames found"
+                $mimeType = 'audio/m4a';
             } elseif (str_contains($mimeType, 'ogg')) {
                 $mimeType = 'audio/ogg';
             }
@@ -118,7 +119,15 @@ class VoiceAssistantController extends Controller
                         }
                     }
                 } else {
-                    \Illuminate\Support\Facades\Log::error('Gemini API Request failed with status ' . $response->status() . ': ' . $response->body());
+                    $statusCode = $response->status();
+                    $errorBody = $response->json();
+                    $apiErrorMessage = $errorBody['error']['message'] ?? $response->body();
+                    \Illuminate\Support\Facades\Log::error('Gemini API Request failed with status ' . $statusCode . ': ' . $response->body());
+
+                    return response()->json([
+                        'route' => null,
+                        'message' => 'Error de la API de Gemini (' . $statusCode . '): ' . $apiErrorMessage
+                    ]);
                 }
 
                 return response()->json([

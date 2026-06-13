@@ -103,12 +103,14 @@ class VoiceAssistantController extends Controller
                                     'params' => $data['params'],
                                     'message' => $data['message'] ?? 'Redirigiendo...',
                                     'redirect_url' => $redirectUrl,
-                                    'mode' => 'gemini_multimodal'
+                                    'mode' => 'gemini_multimodal',
+                                    'transcript' => $data['transcript'] ?? null
                                 ]);
                             } else {
                                 return response()->json([
                                     'route' => null,
-                                    'message' => $data['message'] ?? 'Gemini procesó el audio pero determinó que no corresponde a ningún reporte de la base de datos.'
+                                    'message' => $data['message'] ?? 'Gemini procesó el audio pero determinó que no corresponde a ningún reporte de la base de datos.',
+                                    'transcript' => $data['transcript'] ?? null
                                 ]);
                             }
                         } else {
@@ -234,7 +236,8 @@ Debes responder ÚNICAMENTE con un objeto JSON válido que cumpla estrictamente 
     \"estado_contratacion\": \"contratado\"|\"pendiente\"|\"rechazado\"|null,
     \"materia_id\": int_o_null
   },
-  \"message\": \"Mensaje en español amigable explicando la acción tomada, ej. 'Mostrando reporte de aprobados para el Grupo 1'.\"
+  \"message\": \"Mensaje en español amigable explicando la acción tomada, ej. \'Mostrando reporte de aprobados para el Grupo 1\'.\",
+  \"transcript\": \"La transcripción exacta de lo que escuchaste en el audio.\"
 }
 
 Si el comando no se relaciona con ningún reporte o tiene ambigüedad, responde con \"route\": null y un mensaje explicativo en \"message\".";

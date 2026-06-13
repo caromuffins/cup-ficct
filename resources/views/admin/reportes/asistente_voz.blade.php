@@ -272,7 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = data.redirect_url;
                 }, 1800);
             } else {
-                setUIError(data.message || "No logré identificar el reporte. Intenta de nuevo.");
+                let errorMsg = data.message || "No logré identificar el reporte.";
+                if (data.transcript) {
+                    errorMsg += `<br><span class="text-xs text-gray-400 block mt-2 font-semibold">Entendido: "${data.transcript}"</span>`;
+                }
+                setUIError(errorMsg);
             }
         })
         .catch(error => {
@@ -319,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         visualizer.className = 'flex items-center justify-center space-x-1.5 h-16 my-8';
         statusText.textContent = 'No se pudo procesar';
         statusText.className = 'text-xs text-red-400 font-semibold mt-1';
-        transcriptText.textContent = message;
+        transcriptText.innerHTML = message;
         btnAction.textContent = 'Reintentar';
         btnAction.style.display = 'inline-block';
     }

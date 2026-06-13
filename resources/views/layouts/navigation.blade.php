@@ -45,6 +45,7 @@
                         ['route' => 'admin.notas.index',       'label' => 'Notas',        'match' => 'admin.notas.*'],
                         ['route' => 'admin.admision.index',    'label' => 'Admisión',     'match' => 'admin.admision.*'],
                         ['route' => 'admin.reportes.index',    'label' => 'Reportes',     'match' => 'admin.reportes.*'],
+                        ['route' => 'admin.bitacora.index',    'label' => 'Bitácora',     'match' => 'admin.bitacora.*'],
                     ];
                     @endphp
                     @foreach($links as $link)
@@ -136,6 +137,7 @@
                 <x-responsive-nav-link :href="route('admin.notas.index')" :active="request()->routeIs('admin.notas.*')">Notas</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.admision.index')" :active="request()->routeIs('admin.admision.*')">Admisión</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.reportes.index')" :active="request()->routeIs('admin.reportes.*')">Reportes</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.bitacora.index')" :active="request()->routeIs('admin.bitacora.*')">Bitácora</x-responsive-nav-link>
             @elseif(auth()->user()->role === 'docente')
                 <x-responsive-nav-link :href="route('docente.grupos')" :active="request()->routeIs('docente.grupos')">Mis Grupos</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('docente.notas')" :active="request()->routeIs('docente.notas*')">Notas</x-responsive-nav-link>

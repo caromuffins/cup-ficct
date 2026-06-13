@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admision', [PostulanteResultadosController::class, 'admision'])->name('admision.index');
     });
 
-    Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware(['role:admin', 'bitacora'])->group(function () {
         Route::get('postulantes/importar', [AdminPostulanteController::class, 'importar'])->name('postulantes.importar');
         Route::post('postulantes/importar', [AdminPostulanteController::class, 'importarProcesar'])->name('postulantes.importar.procesar');
         Route::get('postulantes/plantilla', [AdminPostulanteController::class, 'descargarPlantilla'])->name('postulantes.plantilla');
@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reportes/exportar/notas', [ReporteController::class, 'exportarNotas'])->name('reportes.exportar.notas');
         Route::get('consultas', [ConsultaController::class, 'index'])->name('consultas.index');
         Route::get('consultas/ejecutar', [ConsultaController::class, 'ejecutar'])->name('consultas.ejecutar');
+        Route::get('bitacora', [\App\Http\Controllers\Admin\BitacoraController::class, 'index'])->name('bitacora.index');
     });
 
     Route::prefix('docente')->name('docente.')->middleware('role:docente')->group(function () {

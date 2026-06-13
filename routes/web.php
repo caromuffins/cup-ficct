@@ -93,6 +93,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('notas', [DocenteDashboardController::class, 'notas'])->name('notas');
         Route::get('notas/alumnos', [DocenteDashboardController::class, 'getAlumnos'])->name('notas.alumnos');
         Route::post('notas', [DocenteDashboardController::class, 'storeNotas'])->name('notas.store');
+
+        Route::get('asistencia', [DocenteDashboardController::class, 'asistencia'])->name('asistencia');
+        Route::get('asistencia/alumnos', [DocenteDashboardController::class, 'getAsistenciaAlumnos'])->name('asistencia.alumnos');
+        Route::post('asistencia', [DocenteDashboardController::class, 'storeAsistencia'])->name('asistencia.store');
+        Route::get('asistencia/historial', [DocenteDashboardController::class, 'asistenciaHistorial'])->name('asistencia.historial');
     });
 });
 

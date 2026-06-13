@@ -84,7 +84,12 @@
                     </div>
 
                     {{-- Botones de acción --}}
-                    <div class="px-5 pb-4 flex gap-2">
+                    <div class="px-5 pb-4 flex gap-3">
+                        <a href="{{ route('docente.asistencia') }}?grupo_id={{ $g->grupo_id }}&materia_id={{ $g->materia_id }}"
+                           class="flex-1 text-center text-white text-sm font-semibold py-2 rounded-md hover:opacity-90 transition-opacity"
+                           style="background-color: #10B981;">
+                            Asistencia
+                        </a>
                         <a href="{{ route('docente.notas') }}?grupo_id={{ $g->grupo_id }}&materia_id={{ $g->materia_id }}"
                            class="flex-1 text-center text-white text-sm font-semibold py-2 rounded-md transition-colors"
                            style="background-color: #1F4E79;"

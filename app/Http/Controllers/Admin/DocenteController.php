@@ -57,9 +57,9 @@ class DocenteController extends Controller
         $tieneMaestria  = $request->boolean('tiene_maestria');
         $tieneDiplomado = $request->boolean('tiene_diplomado');
 
-        if ($request->estado_contratacion === 'contratado' && !$tieneMaestria && !$tieneDiplomado) {
+        if ($request->estado_contratacion === 'contratado' && (!$tieneMaestria || !$tieneDiplomado || empty($request->titulo_profesional))) {
             return back()
-                ->with('error', 'Para contratar un docente debe tener Maestría o Diplomado en Educación Superior.')
+                ->with('error', 'Para contratar un docente, este debe ser Profesional (Título Profesional) y contar con Maestría y Diplomado en Educación Superior.')
                 ->withInput();
         }
 
@@ -141,9 +141,9 @@ class DocenteController extends Controller
         $tieneMaestria  = $request->boolean('tiene_maestria');
         $tieneDiplomado = $request->boolean('tiene_diplomado');
 
-        if ($request->estado_contratacion === 'contratado' && !$tieneMaestria && !$tieneDiplomado) {
+        if ($request->estado_contratacion === 'contratado' && (!$tieneMaestria || !$tieneDiplomado || empty($request->titulo_profesional))) {
             return back()
-                ->with('error', 'Para contratar un docente debe tener Maestría o Diplomado en Educación Superior.')
+                ->with('error', 'Para contratar un docente, este debe ser Profesional (Título Profesional) y contar con Maestría y Diplomado en Educación Superior.')
                 ->withInput();
         }
 

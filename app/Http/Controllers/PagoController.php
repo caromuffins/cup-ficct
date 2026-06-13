@@ -34,6 +34,24 @@ class PagoController extends Controller
                 ->with('error', 'Tu inscripcion ya esta pagada.');
         }
 
+        // Verificar si tiene todos los requisitos obligatorios aprobados
+        $requisitosObligatorios = DB::table('requisitos')
+            ->where('activo', true)
+            ->where('obligatorio', true)
+            ->pluck('id');
+
+        $aprobadosCount = DB::table('requisito_postulante')
+            ->where('postulante_id', $postulante->id)
+            ->where('inscripcion_id', $inscripcion->id)
+            ->whereIn('requisito_id', $requisitosObligatorios)
+            ->where('estado', 'aprobado')
+            ->count();
+
+        if ($aprobadosCount < $requisitosObligatorios->count()) {
+            return redirect()->route('postulante.inscripcion.index')
+                ->with('error', 'No puedes realizar el pago hasta que el administrador haya validado y aprobado todos tus requisitos obligatorios (Título de Bachiller y otros).');
+        }
+
         $gestion = DB::table('gestiones')->where('id', $inscripcion->gestion_id)->first();
         $monto   = (int) round($gestion->monto_inscripcion * 100); // Stripe usa centavos
 

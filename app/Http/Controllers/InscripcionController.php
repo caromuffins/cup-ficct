@@ -24,7 +24,24 @@ class InscripcionController extends Controller
             $gestion = DB::table('gestiones')->where('id', $inscripcion->gestion_id)->first();
         }
 
-        return view('postulante.inscripcion', compact('inscripcion', 'carreras', 'gestion', 'postulante'));
+        $requisitosAprobados = false;
+        if ($inscripcion) {
+            $requisitosObligatorios = DB::table('requisitos')
+                ->where('activo', true)
+                ->where('obligatorio', true)
+                ->pluck('id');
+
+            $aprobadosCount = DB::table('requisito_postulante')
+                ->where('postulante_id', $postulante->id)
+                ->where('inscripcion_id', $inscripcion->id)
+                ->whereIn('requisito_id', $requisitosObligatorios)
+                ->where('estado', 'aprobado')
+                ->count();
+
+            $requisitosAprobados = ($aprobadosCount >= $requisitosObligatorios->count());
+        }
+
+        return view('postulante.inscripcion', compact('inscripcion', 'carreras', 'gestion', 'postulante', 'requisitosAprobados'));
     }
 
     public function store(Request $request)

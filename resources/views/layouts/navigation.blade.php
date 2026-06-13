@@ -60,6 +60,7 @@
                     $links = [
                         ['route' => 'docente.dashboard', 'label' => 'Dashboard',   'match' => 'docente.dashboard'],
                         ['route' => 'docente.grupos',    'label' => 'Mis Grupos',  'match' => 'docente.grupos'],
+                        ['route' => 'docente.asistencia','label' => 'Asistencia',  'match' => 'docente.asistencia*'],
                         ['route' => 'docente.notas',     'label' => 'Notas',       'match' => 'docente.notas*'],
                         ['route' => 'docente.horario',   'label' => 'Mi Horario',  'match' => 'docente.horario'],
                     ];
@@ -138,8 +139,8 @@
                 <x-responsive-nav-link :href="route('admin.admision.index')" :active="request()->routeIs('admin.admision.*')">Admisión</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.reportes.index')" :active="request()->routeIs('admin.reportes.*')">Reportes</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.bitacora.index')" :active="request()->routeIs('admin.bitacora.*')">Bitácora</x-responsive-nav-link>
-            @elseif(auth()->user()->role === 'docente')
                 <x-responsive-nav-link :href="route('docente.grupos')" :active="request()->routeIs('docente.grupos')">Mis Grupos</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('docente.asistencia')" :active="request()->routeIs('docente.asistencia*')">Asistencia</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('docente.notas')" :active="request()->routeIs('docente.notas*')">Notas</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('docente.horario')" :active="request()->routeIs('docente.horario')">Mi Horario</x-responsive-nav-link>
             @endif
